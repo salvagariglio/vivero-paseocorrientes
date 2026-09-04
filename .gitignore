@@ -1,15 +1,19 @@
+# Dependencias y build
 node_modules
 .next
 out
 build
-.DS_Store
-*.pem
-.env
-.env*.local
-.vercel
 next-env.d.ts
 
-# Datos del vivero: no van al repo (el repo es publico)
+# Entorno (el ejemplo si va al repo)
+.env
+.env.local
+.env.*.local
+
+# Deploy
+.vercel
+
+# Datos del vivero: el repo es publico
 *.xlsx
 *.xls
 *.csv
@@ -17,3 +21,5 @@ next-env.d.ts
 
 # Herramientas locales
 .semgrep/
+.DS_Store
+*.pem

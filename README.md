@@ -124,3 +124,26 @@ No hay código por cliente. Un vivero nuevo es una fila en `tenants` (vía
 `create_tenant`) más su dominio. El cache de lecturas públicas está segmentado
 por tenant (`revalidateTag('tenant:<id>')`), así que un vivero no invalida el de
 otro.
+
+## Estado actual
+
+- **Proyecto Supabase**: `Viveros` (`yblkzoutcoimwwwfhzle`, us-east-2). Migraciones
+  0001–0004 aplicadas: tablas, RLS, funciones, bucket `media` y el vivero
+  Paseo Corrientes con su paleta y sus referencias.
+- **Deploy**: https://vivero-paseocorrientes.vercel.app (Vercel, deploy
+  automatico en cada push a `main`).
+- **Catalogo cargado**: 448 productos importados del listado de precios, en
+  6 familias y 22 subcategorias. Los precios se redondearon al peso porque
+  la planilla trae centavos de una formula de markup.
+- **Vercel Authentication esta activa**: el sitio solo lo ve quien tenga
+  acceso al equipo de Vercel. Al conectar el dominio propio queda publico;
+  hasta entonces los QR no le sirven a un cliente en el local.
+
+### Importar un listado de precios
+
+```bash
+node scripts/import-listado.mjs "Listado precios Publico.xlsx" import.sql
+```
+
+Genera el SQL (categorias + referencia de envase + productos, todo
+idempotente por `slug`) para pegar en el SQL Editor de Supabase.
