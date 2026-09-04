@@ -1,0 +1,19 @@
+node_modules
+.next
+out
+build
+.DS_Store
+*.pem
+.env
+.env*.local
+.vercel
+next-env.d.ts
+
+# Datos del vivero: no van al repo (el repo es publico)
+*.xlsx
+*.xls
+*.csv
+/data/
+
+# Herramientas locales
+.semgrep/

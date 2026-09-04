@@ -1,0 +1,126 @@
+# Vivero — catálogo multitenant con QR y etiquetas
+
+Catálogo de plantas para viveros. Cada vivero (tenant) tiene su propio subdominio o
+dominio propio, su marca, su catálogo y su panel. Nada está hardcodeado: nombre,
+logo, colores, moneda, datos de contacto y hasta las medidas de las etiquetas
+viven en la base de datos.
+
+- **Next.js 15** (App Router, JSX) + **React 19**
+- **Supabase** (Postgres + Auth + Storage), aislamiento por RLS
+- **Tailwind v4**
+- Deploy en **Vercel**
+
+## Cómo funciona el multitenant
+
+1. El request llega con un `Host`.
+2. `src/lib/tenant.js` lo busca en `tenant_domains` (RPC `resolve_tenant`).
+3. Si no está, prueba con el subdominio contra `tenants.slug`.
+4. El `tenant.id` filtra todas las consultas, y **RLS lo vuelve a validar en Postgres**:
+   aunque una consulta llegue sin filtro, la fila de otro vivero no sale.
+
+Las escrituras del panel usan la sesión del usuario, y las policies exigen
+membresía en ese tenant (`memberships`), con roles `owner` / `admin` / `editor`.
+
+```
+vivero-luz.midominio.com   ->  tenant_domains.host  ->  tenant A
+viveroluz.com.ar           ->  tenant_domains.host  ->  tenant A  (dominio propio)
+otro-vivero.midominio.com  ->  tenants.slug         ->  tenant B
+```
+
+## Puesta en marcha
+
+```bash
+npm install
+cp .env.local.example .env.local   # completar con los datos del proyecto
+npm run dev
+```
+
+### 1. Base de datos
+
+Pegá `supabase/migrations/0001_init.sql` en el SQL Editor de Supabase y ejecutalo.
+Crea tablas, funciones, policies de RLS y el bucket público `media`.
+
+### 2. Variables de entorno
+
+| Variable | Qué es |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL de Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon / publishable key |
+| `NEXT_PUBLIC_ROOT_DOMAIN` | dominio raíz, ej. `midominio.com` |
+| `NEXT_PUBLIC_PLATFORM_HOSTS` | hosts que no son de un vivero (separados por coma) |
+| `NEXT_PUBLIC_DEV_TENANT_SLUG` | solo dev: vivero por defecto en `localhost` |
+
+### 3. Auth
+
+En Supabase → Authentication → URL Configuration, agregá tu dominio y el
+wildcard de subdominios a *Redirect URLs*.
+
+### 4. Primer vivero
+
+1. Entrá a `/admin/login` y creá tu cuenta.
+2. Como el host todavía no resuelve a ningún vivero, vas a `/admin/sin-vivero`.
+3. Creá el vivero: la función `create_tenant` te deja como `owner`, crea los
+   settings, el subdominio y una plantilla de etiqueta.
+4. Entrá por `<slug>.<ROOT_DOMAIN>/admin`.
+
+En desarrollo local podés usar `vivero-luz.localhost:3000` (Chrome y Firefox lo
+resuelven solos) o setear `NEXT_PUBLIC_DEV_TENANT_SLUG`.
+
+### 5. Vercel
+
+- Agregá el **wildcard domain** `*.midominio.com` al proyecto.
+- Para cada dominio propio de un cliente: agregalo en Vercel **y** en el panel
+  (Marca y datos → Direcciones web).
+
+## QR y etiquetas
+
+- `/api/qr?slug=monstera` devuelve el PNG del QR. Solo codifica rutas del propio
+  vivero; acepta `format=svg`, `size`, `dark`, `light`.
+- El QR apunta a `https://<dominio principal del vivero>/planta/<slug>`, así que
+  la etiqueta impresa sigue válida aunque después cambies precio o descripción.
+- `/admin/etiquetas` arma la hoja para imprimir. Las medidas salen de
+  `label_templates` (ancho, alto, QR, separación, margen, A4/Carta y qué campos
+  mostrar), o sea que cada vivero imprime en el papel que usa.
+
+## Modelo de datos
+
+| Tabla | Para qué |
+|---|---|
+| `tenants` | el vivero |
+| `tenant_domains` | hosts que resuelven a ese vivero |
+| `tenant_settings` | marca, moneda, contacto — reemplaza toda constante |
+| `memberships` | usuario + vivero + rol |
+| `tenant_invites` | invitaciones por email, se canjean al entrar |
+| `categories` | árbol (`parent_id`), profundidad libre |
+| `products` | plantas, con promo por ventana de fechas y `attributes` jsonb |
+| `product_images` | galería |
+| `label_templates` | medidas y contenido de las etiquetas |
+
+`products.attributes` es jsonb libre: cada vivero define sus datos de cuidado
+(luz, riego, maceta, dificultad…) sin migrar nada. La ficha los renderiza sola.
+
+## Estructura
+
+```
+src/
+  app/
+    (site)/            catálogo público
+    admin/(panel)/     panel, requiere membresía
+    admin/login        alta y acceso
+    api/qr             generador de QR
+  components/site/     topbar, drawer, cards, galería
+  components/admin/    formularios, uploader, estudio de etiquetas
+  lib/
+    tenant.js          host -> tenant
+    auth.js            sesión, rol, guardas
+    queries.js         lecturas públicas cacheadas por tenant
+    admin-queries.js   lecturas del panel
+supabase/migrations/   schema + RLS
+```
+
+## Escalar a más viveros
+
+No hay código por cliente. Un vivero nuevo es una fila en `tenants` (vía
+`create_tenant`) más su dominio. El cache de lecturas públicas está segmentado
+por tenant (`revalidateTag('tenant:<id>')`), así que un vivero no invalida el de
+otro.

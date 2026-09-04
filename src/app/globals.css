@@ -1,0 +1,148 @@
+@import 'tailwindcss';
+
+/* --------------------------------------------------------------------
+ * Tokens por rol. El layout los sobreescribe con tenant_settings.theme.
+ * Aca solo viven los fallbacks de la plataforma.
+ * ------------------------------------------------------------------ */
+:root {
+  --c-surface: #eef1e9;
+  --c-surface-alt: #dfe4da;
+  --c-card: #ffffff;
+  --c-ink: #16241c;
+  --c-ink-soft: #55655a;
+  --c-on-dark: #f5f7f3;
+  --c-line: #cfd8cb;
+  --c-primary: #3f7064;
+  --c-primary-deep: #2c4c47;
+  --c-secondary: #2b5462;
+  --c-secondary-soft: #387090;
+  --c-earth: #7e6e5e;
+  --c-accent: #c44f50;
+
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-caption: var(--font-sans);
+}
+
+@theme inline {
+  --color-surface: var(--c-surface);
+  --color-surface-alt: var(--c-surface-alt);
+  --color-card: var(--c-card);
+  --color-ink: var(--c-ink);
+  --color-ink-soft: var(--c-ink-soft);
+  --color-on-dark: var(--c-on-dark);
+  --color-line: var(--c-line);
+  --color-primary: var(--c-primary);
+  --color-primary-deep: var(--c-primary-deep);
+  --color-secondary: var(--c-secondary);
+  --color-secondary-soft: var(--c-secondary-soft);
+  --color-earth: var(--c-earth);
+  --color-accent: var(--c-accent);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-caption: var(--font-caption);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--c-surface);
+    color: var(--c-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--c-primary);
+    color: var(--c-on-dark);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Nombre cientifico: la linea que ata todo el sistema visual. */
+  .binomial {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--c-ink-soft);
+    letter-spacing: 0.01em;
+  }
+
+  /* Rotulos de referencia, como en la carteleria del local. */
+  .caption {
+    font-family: var(--font-caption);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* Perforacion del colgante. */
+  .tag-punch::before {
+    content: '';
+    position: absolute;
+    top: 0.55rem;
+    left: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    translate: -50% 0;
+    border-radius: 999px;
+    border: 1.5px solid var(--c-accent);
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------
+ * Impresion de etiquetas. Las medidas reales las inyecta LabelStudio
+ * desde label_templates (mm); esto es solo el reset de pagina.
+ * ------------------------------------------------------------------ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .print-sheet {
+    margin: 0;
+  }
+
+  .label {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
