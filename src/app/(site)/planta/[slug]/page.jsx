@@ -85,7 +85,7 @@ export default async function ProductPage({ params }) {
             <PromoBadge product={product} />
           </div>
 
-          <h1 className="font-display text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.02] text-ink">
+          <h1 className="font-display text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.02] text-primary-deep">
             {product.name}
           </h1>
 
@@ -97,13 +97,13 @@ export default async function ProductPage({ params }) {
             <div className="mt-6 flex flex-wrap items-baseline gap-3 border-y border-line py-5">
               <span
                 className={`font-display text-4xl tabular-nums ${
-                  promo.active ? 'text-accent' : 'text-ink'
+                  promo.active ? 'text-accent' : 'text-primary-deep'
                 }`}
               >
                 {formatPrice(promo.effective, s)}
               </span>
               {promo.active && promo.price != null && (
-                <span className="text-lg tabular-nums text-ink-soft line-through decoration-1">
+                <span className="text-lg tabular-nums text-earth line-through decoration-1">
                   {formatPrice(promo.price, s)}
                 </span>
               )}
@@ -131,7 +131,7 @@ export default async function ProductPage({ params }) {
               )}`}
               target="_blank"
               rel="noreferrer"
-              className="mt-8 inline-flex w-fit items-center bg-primary px-6 py-3 text-sm font-medium text-on-dark transition-opacity hover:opacity-90"
+              className="mt-8 inline-flex w-fit items-center rounded-pill bg-primary px-6 py-3 text-sm font-medium text-on-dark transition-opacity hover:opacity-90"
             >
               Consultar por WhatsApp
             </a>
@@ -142,28 +142,34 @@ export default async function ProductPage({ params }) {
       {/* El mismo cartel de referencias que esta en el local */}
       <AttributeReferences definitions={definitions} attributes={product.attributes} />
 
-      {/* La etiqueta que el cliente acaba de escanear */}
-      <section className="mt-14 flex flex-wrap items-center gap-6 border-t border-line pt-8">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`/api/qr?slug=${encodeURIComponent(product.slug)}&size=256`}
-          alt={`Código QR de ${product.name}`}
-          width={88}
-          height={88}
-          className="shrink-0"
-        />
-        <p className="max-w-[46ch] text-sm leading-relaxed text-ink-soft">
-          Este es el código de la etiqueta de {product.name}. Escaneándolo llegás siempre a esta
-          ficha, con el precio y los cuidados actualizados.
-        </p>
+      {/* La etiqueta que el cliente acaba de escanear: en el azul de la carteleria */}
+      <section className="mt-14 flex flex-wrap items-center gap-6 rounded-card bg-secondary px-7 py-7 text-on-dark">
+        <div className="rounded-sm bg-on-dark p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/qr?slug=${encodeURIComponent(product.slug)}&size=256`}
+            alt={`Código QR de ${product.name}`}
+            width={96}
+            height={96}
+          />
+        </div>
+        <div className="min-w-56 flex-1">
+          <p className="caption text-[0.65rem] opacity-70">La etiqueta de esta planta</p>
+          <p className="mt-2 max-w-[46ch] text-sm leading-relaxed">
+            Escaneá el código y llegás siempre a esta ficha, con el precio y los cuidados
+            actualizados.
+          </p>
+        </div>
       </section>
 
       {siblings.length > 0 && (
         <section className="mt-24">
-          <h2 className="mb-7 border-b border-line pb-3 font-display text-3xl leading-none text-ink">
-            También en {trail[trail.length - 1]?.name ?? 'el vivero'}
-          </h2>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="band mb-5 px-7 py-3.5">
+            <h2 className="font-display text-2xl leading-none">
+              También en {trail[trail.length - 1]?.name ?? 'el vivero'}
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {siblings.map((p) => (
               <ProductCard key={p.id} product={p} settings={s} definitions={definitions} />
             ))}

@@ -19,7 +19,7 @@ export default async function NotFound() {
             </p>
             <Link
               href="/"
-              className="mt-8 inline-block bg-primary px-6 py-3 text-sm font-medium text-on-dark"
+              className="mt-8 inline-block rounded-pill bg-primary px-6 py-3 text-sm font-medium text-on-dark"
             >
               Ir al catálogo
             </Link>

@@ -29,7 +29,7 @@ export default async function TeamPage() {
         no se puede quitar.
       </p>
 
-      <ul className="mt-8 divide-y divide-line border border-line bg-white">
+      <ul className="mt-8 divide-y divide-line rounded-card border border-line bg-card">
         {(members ?? []).map((m) => (
           <li key={m.user_id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <span className="min-w-0 flex-1 truncate text-sm text-ink">{m.email}</span>
@@ -59,7 +59,7 @@ export default async function TeamPage() {
       {(invites ?? []).length > 0 && (
         <section className="mt-12 border-t border-line pt-8">
           <h2 className="font-display text-2xl leading-none text-ink">Invitaciones pendientes</h2>
-          <ul className="mt-5 divide-y divide-line border border-line bg-white">
+          <ul className="mt-5 divide-y divide-line rounded-card border border-line bg-card">
             {invites.map((i) => (
               <li key={i.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1 truncate text-sm text-ink">{i.email}</span>

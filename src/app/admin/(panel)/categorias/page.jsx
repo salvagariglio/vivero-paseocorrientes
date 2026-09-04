@@ -45,21 +45,21 @@ export default async function CategoriesPage() {
         </div>
         <Link
           href="/admin/categorias/nueva"
-          className="bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90"
+          className="rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90"
         >
           Nueva categoria
         </Link>
       </div>
 
       {tree.length === 0 ? (
-        <div className="mt-8 border border-dashed border-line p-12 text-center">
+        <div className="mt-8 rounded-card border border-dashed border-line p-12 text-center">
           <p className="font-display text-2xl text-ink">El menu esta vacio</p>
           <p className="mt-2 text-sm text-ink-soft">
             Crea la primera categoria para empezar a ordenar el catalogo.
           </p>
         </div>
       ) : (
-        <ul className="mt-8 border border-line border-b-0 bg-white">
+        <ul className="mt-8 border border-line border-b-0 bg-card">
           {tree.map((node) => (
             <Branch key={node.id} node={node} />
           ))}

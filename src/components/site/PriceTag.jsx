@@ -10,14 +10,14 @@ export default function PriceTag({ product, settings, size = 'md' }) {
   const scale = size === 'lg' ? 'text-2xl' : 'text-base';
 
   if (!promo.active) {
-    return <p className={`${scale} font-medium tabular-nums text-ink`}>{effective}</p>;
+    return <p className={`${scale} font-medium tabular-nums text-primary-deep`}>{effective}</p>;
   }
 
   return (
     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
       <p className={`${scale} font-medium tabular-nums text-accent`}>{effective}</p>
       {promo.price != null && (
-        <p className="text-sm tabular-nums text-ink-soft line-through decoration-1">
+        <p className="text-sm tabular-nums text-earth line-through decoration-1">
           {formatPrice(promo.price, settings)}
         </p>
       )}
@@ -32,7 +32,7 @@ export function PromoBadge({ product }) {
   const text = promo.label || (promo.discount ? `${promo.discount}% menos` : 'Promo');
 
   return (
-    <span className="inline-flex items-center bg-accent px-2 py-1 text-[0.7rem] font-medium tracking-wide text-on-dark">
+    <span className="caption inline-flex items-center rounded-pill bg-accent px-3 py-1 text-[0.6rem] text-on-dark">
       {text}
     </span>
   );

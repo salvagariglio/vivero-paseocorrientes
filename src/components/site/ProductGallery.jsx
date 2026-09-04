@@ -9,15 +9,15 @@ export default function ProductGallery({ images = [], name }) {
 
   if (!current) {
     return (
-      <div className="flex aspect-[4/5] items-center justify-center bg-card ring-1 ring-line">
-        <span className="font-display text-7xl text-line">{name.charAt(0)}</span>
+      <div className="flex aspect-[4/5] items-center justify-center rounded-lg bg-surface-alt">
+        <span className="font-display text-7xl text-primary/20">{name.charAt(0)}</span>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="relative aspect-[4/5] overflow-hidden bg-card ring-1 ring-line">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-surface-alt">
         <Image
           src={current.url}
           alt={current.alt || name}
@@ -37,8 +37,8 @@ export default function ProductGallery({ images = [], name }) {
                 onClick={() => setActive(i)}
                 aria-label={`Ver imagen ${i + 1} de ${name}`}
                 aria-current={i === active}
-                className={`relative block h-20 w-16 overflow-hidden ring-1 transition-all ${
-                  i === active ? 'ring-2 ring-primary' : 'ring-line hover:ring-ink-soft'
+                className={`relative block h-20 w-16 overflow-hidden rounded-sm ring-1 transition-all ${
+                  i === active ? 'ring-2 ring-primary' : 'ring-line hover:ring-earth'
                 }`}
               >
                 <Image

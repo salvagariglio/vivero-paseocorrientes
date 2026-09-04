@@ -20,7 +20,7 @@ export default function AttributeDefinitionCard({ definition }) {
   }
 
   return (
-    <div className="border border-line bg-white p-5">
+    <div className="rounded-card border border-line bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-display text-xl leading-none text-ink">{definition.label}</p>

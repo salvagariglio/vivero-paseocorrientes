@@ -42,6 +42,13 @@
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-caption: var(--font-caption);
+
+  /* La marca es redonda: el isotipo es un lazo y las muestras del manual
+     son cuadrados de esquina muy blanda. El sistema lo sigue. */
+  --radius-sm: 8px;
+  --radius-card: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
 }
 
 @layer base {
@@ -64,15 +71,24 @@
   :focus-visible {
     outline: 2px solid var(--c-primary);
     outline-offset: 3px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Fraunces variable: opsz alto = corte de display, con el contraste
+     del logo. SOFT/WONK en 0 para que no se ponga caricaturesca. */
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-variation-settings: 'SOFT' 0, 'WONK' 0, 'opsz' 144;
   }
 
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.012em;
+    font-weight: 600;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
 
@@ -85,17 +101,42 @@
   /* Nombre cientifico: la linea que ata todo el sistema visual. */
   .binomial {
     font-family: var(--font-display);
+    font-variation-settings: 'SOFT' 0, 'WONK' 0, 'opsz' 24;
     font-style: italic;
     font-weight: 400;
-    color: var(--c-ink-soft);
+    color: var(--c-earth);
     letter-spacing: 0.01em;
   }
 
-  /* Rotulos de referencia, como en la carteleria del local. */
+  /* Rotulos, como los del manual: sans angosta, versalita, tracking. */
   .caption {
     font-family: var(--font-caption);
+    font-variation-settings: 'wdth' 92;
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Banda solida de seccion: el recurso que usa la hoja de Referencias. */
+  .band {
+    background: var(--c-primary);
+    color: var(--c-on-dark);
+    border-radius: var(--radius-pill);
+  }
+
+  /* Ficha: arena sobre papel, esquina blanda, sombra apenas insinuada. */
+  .panel {
+    background: var(--c-surface-alt);
+    border-radius: var(--radius-card);
+  }
+
+  /* Regla fina bajo los titulos, como en el manual. */
+  .rule::after {
+    content: '';
+    display: block;
+    height: 1px;
+    margin-top: 0.6rem;
+    background: color-mix(in srgb, var(--c-primary) 35%, transparent);
   }
 
   /* Perforacion del colgante. */
@@ -125,7 +166,7 @@
 }
 
 /* --------------------------------------------------------------------
- * Impresion de etiquetas. Las medidas reales las inyecta LabelStudio
+ * Impresion de etiquetas. Las medidas reales las inyecta LabelSheet
  * desde label_templates (mm); esto es solo el reset de pagina.
  * ------------------------------------------------------------------ */
 @media print {

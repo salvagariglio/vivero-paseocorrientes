@@ -21,7 +21,7 @@ export default function TopBar({ tenant, tree }) {
   ].filter(Boolean);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line/70 bg-surface/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           {s.logo_url ? (
@@ -34,7 +34,7 @@ export default function TopBar({ tenant, tree }) {
               priority
             />
           ) : (
-            <span className="truncate font-display text-2xl leading-none text-ink">
+            <span className="truncate font-display text-2xl leading-none text-primary-deep">
               {tenant.name}
             </span>
           )}

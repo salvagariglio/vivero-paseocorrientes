@@ -7,9 +7,9 @@ export default function ProductCard({ product, settings, definitions = [], prior
   return (
     <Link
       href={`/planta/${product.slug}`}
-      className="group flex flex-col bg-card ring-1 ring-line/70 transition-shadow hover:shadow-[0_12px_28px_-18px_rgba(22,36,28,0.55)]"
+      className="panel group flex flex-col overflow-hidden transition-shadow hover:shadow-[0_18px_36px_-24px_rgba(44,76,71,0.55)]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-surface-alt">
+      <div className="relative aspect-[4/5] overflow-hidden bg-surface">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -21,17 +21,17 @@ export default function ProductCard({ product, settings, definitions = [], prior
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <span className="font-display text-5xl text-line">{product.name.charAt(0)}</span>
+            <span className="font-display text-6xl text-primary/15">{product.name.charAt(0)}</span>
           </div>
         )}
 
-        <div className="absolute left-0 top-3">
+        <div className="absolute left-3 top-3">
           <PromoBadge product={product} />
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 border-t border-line/70 px-4 py-4">
-        <h3 className="font-display text-xl leading-snug text-ink">{product.name}</h3>
+      <div className="flex flex-1 flex-col gap-1.5 px-4 py-4">
+        <h3 className="font-display text-xl leading-snug text-primary-deep">{product.name}</h3>
 
         {product.scientific_name && (
           <p className="binomial text-sm leading-tight">{product.scientific_name}</p>

@@ -28,7 +28,7 @@ export default async function ProductsPage({ searchParams }) {
         </div>
         <Link
           href="/admin/productos/nuevo"
-          className="bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90"
+          className="rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90"
         >
           Cargar planta
         </Link>
@@ -47,7 +47,7 @@ export default async function ProductsPage({ searchParams }) {
           defaultValue={q}
           placeholder="Buscar por nombre, científico o código"
           aria-label="Buscar plantas"
-          className="min-w-0 flex-1 border border-line bg-white px-3 py-2.5 text-ink"
+          className="min-w-0 flex-1 rounded-card border border-line bg-card px-3 py-2.5 text-ink"
         />
         <button type="submit" className="border border-line px-4 text-sm text-ink hover:border-primary">
           Buscar
@@ -55,20 +55,20 @@ export default async function ProductsPage({ searchParams }) {
       </form>
 
       {products.length === 0 ? (
-        <div className="mt-10 border border-dashed border-line p-12 text-center">
+        <div className="mt-10 rounded-card border border-dashed border-line p-12 text-center">
           <p className="font-display text-2xl text-ink">Todavía no cargaste plantas</p>
           <p className="mt-2 text-sm text-ink-soft">
             Cada planta que cargues genera su ficha y su QR automáticamente.
           </p>
           <Link
             href="/admin/productos/nuevo"
-            className="mt-6 inline-block bg-primary px-5 py-2.5 text-sm font-medium text-on-dark"
+            className="mt-6 inline-block rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-on-dark"
           >
             Cargar la primera
           </Link>
         </div>
       ) : (
-        <ul className="mt-6 divide-y divide-line border border-line bg-white">
+        <ul className="mt-6 divide-y divide-line rounded-card border border-line bg-card">
           {products.map((p) => {
             const promo = promoState(p);
             return (

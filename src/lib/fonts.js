@@ -1,12 +1,4 @@
-import {
-  Archivo,
-  Barlow,
-  Barlow_Condensed,
-  Karla,
-  Libre_Baskerville,
-  Petrona,
-  Playfair_Display,
-} from 'next/font/google';
+import { Archivo, Fraunces, Karla, Libre_Baskerville, Petrona } from 'next/font/google';
 import { DEFAULT_TYPESET } from '@/lib/theme';
 
 /**
@@ -15,23 +7,21 @@ import { DEFAULT_TYPESET } from '@/lib/theme';
  * Agregar una combinacion nueva es agregar una entrada aca.
  */
 
-const playfair = Playfair_Display({
+// Fraunces es la tipografia del manual de Paseo Corrientes (Fraunces 72pt).
+// Los ejes opsz/SOFT/WONK se fijan en globals.css: opsz alto da el corte
+// de display, con el contraste que se ve en el logo.
+const fraunces = Fraunces({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['400', '500', '700'],
+  axes: ['SOFT', 'WONK', 'opsz'],
   style: ['normal', 'italic'],
 });
 
-const barlow = Barlow({
+// Sustituto libre de Acumin Variable Concept, la sans del manual.
+const archivo = Archivo({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['400', '500', '600'],
-});
-
-const barlowCondensed = Barlow_Condensed({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['500', '600'],
+  axes: ['wdth'],
 });
 
 const petrona = Petrona({
@@ -39,12 +29,6 @@ const petrona = Petrona({
   display: 'swap',
   weight: ['400', '500', '600'],
   style: ['normal', 'italic'],
-});
-
-const archivo = Archivo({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500', '600'],
 });
 
 const libreBaskerville = Libre_Baskerville({
@@ -61,23 +45,20 @@ const karla = Karla({
 });
 
 export const TYPESETS = {
-  // Serif de alto contraste + grotesca. Es la del manual de Paseo Corrientes.
-  bosque: {
-    label: 'Bosque — Playfair Display + Barlow',
-    display: playfair,
-    sans: barlow,
-    caption: barlowCondensed,
+  'fraunces-archivo': {
+    label: 'Fraunces + Archivo',
+    display: fraunces,
+    sans: archivo,
+    caption: archivo,
   },
-  // Serif variable argentina + grotesca argentina.
-  herbario: {
-    label: 'Herbario — Petrona + Archivo',
+  'petrona-archivo': {
+    label: 'Petrona + Archivo',
     display: petrona,
     sans: archivo,
     caption: archivo,
   },
-  // Serif clasica de texto + grotesca humanista.
-  mercado: {
-    label: 'Mercado — Libre Baskerville + Karla',
+  'baskerville-karla': {
+    label: 'Libre Baskerville + Karla',
     display: libreBaskerville,
     sans: karla,
     caption: karla,

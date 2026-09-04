@@ -37,7 +37,7 @@ export default async function SettingsPage() {
             esta lista.
           </p>
 
-          <ul className="mt-6 divide-y divide-line border border-line bg-white">
+          <ul className="mt-6 divide-y divide-line rounded-card border border-line bg-card">
             {(domains ?? []).map((d) => (
               <li key={d.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1 truncate text-sm text-ink">{d.host}</span>

@@ -83,7 +83,7 @@ export async function requireTenant() {
 }
 
 const SETTINGS_DEFAULTS = {
-  typeset: 'bosque',
+  typeset: 'fraunces-archivo',
   currency: 'ARS',
   locale: 'es-AR',
   show_prices: true,

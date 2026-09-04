@@ -13,7 +13,7 @@ export function Field({ label, hint, children, className = '' }) {
 }
 
 const base =
-  'w-full border border-line bg-white px-3 py-2.5 text-ink placeholder:text-ink-soft/60 focus:border-primary';
+  'w-full rounded-sm rounded-card border border-line bg-card px-3 py-2.5 text-ink placeholder:text-ink-soft/60 focus:border-primary';
 
 export function Input(props) {
   return <input {...props} className={`${base} ${props.className ?? ''}`} />;
@@ -55,7 +55,7 @@ export function SubmitButton({ children = 'Guardar cambios', variant = 'primary'
     <button
       type="submit"
       disabled={pending}
-      className={`px-5 py-2.5 text-sm font-medium transition-all disabled:opacity-50 ${styles}`}
+      className={`rounded-pill px-6 py-2.5 text-sm font-medium transition-all disabled:opacity-50 ${styles}`}
     >
       {pending ? 'Guardando…' : children}
     </button>
@@ -74,7 +74,7 @@ export function FormStatus({ state }) {
 export function Fieldset({ title, description, children }) {
   return (
     <section className="border-t border-line pt-8">
-      <h2 className="font-display text-2xl leading-none text-ink">{title}</h2>
+      <h2 className="rule font-display text-2xl leading-none text-ink">{title}</h2>
       {description && <p className="mt-2 text-sm text-ink-soft">{description}</p>}
       <div className="mt-5 space-y-4">{children}</div>
     </section>

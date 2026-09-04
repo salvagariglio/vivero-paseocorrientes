@@ -44,7 +44,7 @@ export default function LabelStudio({ tenant, products, templates, definitions =
 
   if (!template) {
     return (
-      <p className="border border-dashed border-line p-8 text-center text-ink-soft">
+      <p className="rounded-card border border-dashed border-line p-8 text-center text-ink-soft">
         Creá una plantilla de etiqueta para empezar a imprimir.
       </p>
     );
@@ -88,7 +88,7 @@ export default function LabelStudio({ tenant, products, templates, definitions =
             <select
               value={templateId ?? ''}
               onChange={(e) => setTemplateId(e.target.value)}
-              className="mt-1.5 w-full border border-line bg-white px-3 py-2.5 text-ink"
+              className="mt-1.5 w-full rounded-card border border-line bg-card px-3 py-2.5 text-ink"
             >
               {templates.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -104,12 +104,12 @@ export default function LabelStudio({ tenant, products, templates, definitions =
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Monstera, cactus…"
-              className="mt-1.5 w-full border border-line bg-white px-3 py-2.5 text-ink"
+              className="mt-1.5 w-full rounded-card border border-line bg-card px-3 py-2.5 text-ink"
             />
           </label>
         </div>
 
-        <div className="mt-6 max-h-96 overflow-y-auto border border-line bg-white">
+        <div className="mt-6 max-h-96 overflow-y-auto rounded-card border border-line bg-card">
           <ul className="divide-y divide-line">
             {visible.map((p) => (
               <li key={p.id} className="flex items-center gap-3 px-4 py-2.5">
@@ -143,7 +143,7 @@ export default function LabelStudio({ tenant, products, templates, definitions =
             type="button"
             onClick={() => window.print()}
             disabled={sheet.length === 0}
-            className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90 disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90 disabled:opacity-40"
           >
             <Printer size={16} strokeWidth={1.75} />
             Imprimir {sheet.length || ''} {sheet.length === 1 ? 'etiqueta' : 'etiquetas'}
@@ -169,7 +169,7 @@ export default function LabelStudio({ tenant, products, templates, definitions =
 
       <div className="print-sheet mt-6">
         {sheet.length === 0 ? (
-          <p className="no-print border border-dashed border-line p-10 text-center text-sm text-ink-soft">
+          <p className="no-print rounded-card border border-dashed border-line p-10 text-center text-sm text-ink-soft">
             Elegí cuántas etiquetas querés de cada planta.
           </p>
         ) : (

@@ -22,7 +22,7 @@ export default async function NoTenantPage() {
       </p>
 
       {tenants.length > 0 && (
-        <ul className="mt-8 divide-y divide-line border border-line bg-white">
+        <ul className="mt-8 divide-y divide-line rounded-card border border-line bg-card">
           {tenants.map((t) => (
             <li key={t.id}>
               <a

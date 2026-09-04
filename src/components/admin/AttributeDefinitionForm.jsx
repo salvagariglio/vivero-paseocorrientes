@@ -40,7 +40,7 @@ export default function AttributeDefinitionForm({ definition, onDone }) {
     setOptions((prev) => prev.map((o, j) => (j === i ? { ...o, [field]: value } : o)));
 
   return (
-    <form action={formAction} className="border border-line bg-white p-5">
+    <form action={formAction} className="rounded-card border border-line bg-card p-5">
       {d.id && <input type="hidden" name="id" value={d.id} />}
       <input type="hidden" name="options" value={serialized} />
 

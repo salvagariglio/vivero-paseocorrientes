@@ -3,8 +3,8 @@
  * la app siempre pide roles, nunca "el verde" o "el segundo color".
  */
 
-export const TYPESET_KEYS = ['bosque', 'herbario', 'mercado'];
-export const DEFAULT_TYPESET = 'bosque';
+export const TYPESET_KEYS = ['fraunces-archivo', 'petrona-archivo', 'baskerville-karla'];
+export const DEFAULT_TYPESET = 'fraunces-archivo';
 
 export const THEME_TOKENS = [
   { key: 'surface', label: 'Papel', hint: 'Fondo general del sitio.' },

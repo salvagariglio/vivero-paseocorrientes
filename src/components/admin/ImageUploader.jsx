@@ -71,7 +71,7 @@ export default function ImageUploader({
 
       <div className="mt-2 flex flex-wrap gap-3">
         {urls.map((url) => (
-          <div key={url} className="relative size-24 border border-line bg-white">
+          <div key={url} className="relative size-24 rounded-card border border-line bg-card">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={url} alt="" className="size-full object-cover" />
             <button
@@ -89,7 +89,7 @@ export default function ImageUploader({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="flex size-24 flex-col items-center justify-center gap-1 border border-dashed border-line text-xs text-ink-soft hover:border-primary hover:text-primary disabled:opacity-50"
+          className="flex size-24 flex-col items-center justify-center gap-1 rounded-card border border-dashed border-line text-xs text-ink-soft hover:border-primary hover:text-primary disabled:opacity-50"
         >
           <Upload size={18} strokeWidth={1.75} />
           {busy ? 'Subiendo…' : 'Subir'}

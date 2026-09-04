@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 function Stat({ label, value, href }) {
   const body = (
-    <div className="border border-line bg-white p-5">
+    <div className="rounded-card border border-line bg-card p-5">
       <p className="font-display text-4xl leading-none text-ink tabular-nums">{value}</p>
       <p className="mt-2 text-sm text-ink-soft">{label}</p>
     </div>
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
 
       <section className="mt-12 border-t border-line pt-8">
         <h2 className="font-display text-2xl leading-none text-ink">Por dónde seguir</h2>
-        <ul className="mt-5 divide-y divide-line border border-line bg-white">
+        <ul className="mt-5 divide-y divide-line rounded-card border border-line bg-card">
           {[
             {
               href: '/admin/productos/nuevo',

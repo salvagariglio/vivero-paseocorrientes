@@ -67,7 +67,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1.5 w-full border border-line bg-card px-3 py-2.5 text-ink"
+              className="mt-1.5 w-full rounded-card border border-line bg-card px-3 py-2.5 text-ink"
             />
           </label>
 
@@ -80,7 +80,7 @@ export default function LoginPage() {
               autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1.5 w-full border border-line bg-card px-3 py-2.5 text-ink"
+              className="mt-1.5 w-full rounded-card border border-line bg-card px-3 py-2.5 text-ink"
             />
           </label>
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={pending}
-            className="w-full bg-primary px-5 py-3 text-sm font-medium text-on-dark transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-pill bg-primary px-5 py-3 text-sm font-medium text-on-dark transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {pending ? 'Un momento…' : mode === 'signin' ? 'Entrar' : 'Crear cuenta'}
           </button>

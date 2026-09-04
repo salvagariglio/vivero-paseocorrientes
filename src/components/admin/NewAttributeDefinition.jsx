@@ -13,7 +13,7 @@ export default function NewAttributeDefinition() {
     <button
       type="button"
       onClick={() => setOpen(true)}
-      className="inline-flex items-center gap-2 bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90"
+      className="inline-flex items-center gap-2 rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-on-dark hover:opacity-90"
     >
       <Plus size={16} /> Nueva referencia
     </button>

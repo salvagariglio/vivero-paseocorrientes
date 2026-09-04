@@ -47,7 +47,7 @@ export default async function EditProductPage({ params }) {
             alt={`QR de ${product.name}`}
             width={72}
             height={72}
-            className="size-18 border border-line bg-white p-1"
+            className="size-18 rounded-card border border-line bg-card p-1"
           />
           <a
             href={`/api/qr?slug=${encodeURIComponent(product.slug)}&size=1024`}

@@ -12,7 +12,7 @@ export default function LabelTemplateForm({ template }) {
 
   if (!open) {
     return (
-      <div className="flex items-center justify-between border border-line bg-white px-4 py-3">
+      <div className="flex items-center justify-between rounded-card border border-line bg-card px-4 py-3">
         <div>
           <p className="text-sm font-medium text-ink">{t.name}</p>
           <p className="text-xs text-ink-soft">
@@ -31,7 +31,7 @@ export default function LabelTemplateForm({ template }) {
   }
 
   return (
-    <form action={formAction} className="border border-line bg-white p-5">
+    <form action={formAction} className="rounded-card border border-line bg-card p-5">
       {t.id && <input type="hidden" name="id" value={t.id} />}
 
       <Field label="Nombre de la plantilla">

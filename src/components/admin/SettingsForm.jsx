@@ -7,21 +7,21 @@ import { Field, Input, Textarea, Select, Check, SubmitButton, FormStatus, Fields
 import ImageUploader from './ImageUploader';
 
 const TYPESET_LABELS = {
-  bosque: 'Bosque — Playfair Display + Barlow',
-  herbario: 'Herbario — Petrona + Archivo',
-  mercado: 'Mercado — Libre Baskerville + Karla',
+  'fraunces-archivo': 'Fraunces + Archivo',
+  'petrona-archivo': 'Petrona + Archivo',
+  'baskerville-karla': 'Libre Baskerville + Karla',
 };
 
 function TokenField({ token, value, onChange }) {
   return (
-    <div className="flex items-center gap-3 border border-line bg-white px-3 py-2.5">
+    <div className="flex items-center gap-3 rounded-card border border-line bg-card px-3 py-2.5">
       <input
         type="color"
         name={`theme.${token.key}`}
         value={value}
         onChange={(e) => onChange(token.key, e.target.value)}
         aria-label={token.label}
-        className="h-9 w-9 shrink-0 cursor-pointer border border-line bg-white p-0.5"
+        className="h-9 w-9 shrink-0 cursor-pointer rounded-card border border-line bg-card p-0.5"
       />
       <span className="min-w-0 flex-1">
         <span className="block text-sm text-ink">{token.label}</span>
@@ -128,7 +128,7 @@ export default function SettingsForm({ tenant }) {
 
       <Fieldset title="Tipografía" description="Una combinación de titular y texto para todo el sitio.">
         <Field label="Combinación">
-          <Select name="typeset" defaultValue={s.typeset ?? 'bosque'}>
+          <Select name="typeset" defaultValue={s.typeset ?? 'fraunces-archivo'}>
             {TYPESET_KEYS.map((key) => (
               <option key={key} value={key}>
                 {TYPESET_LABELS[key] ?? key}

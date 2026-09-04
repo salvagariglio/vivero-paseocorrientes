@@ -19,7 +19,7 @@ export default function AttributesEditor({
 
   if (definitions.length === 0) {
     return (
-      <p className="border border-dashed border-line px-4 py-6 text-sm text-ink-soft">
+      <p className="rounded-card border border-dashed border-line px-4 py-6 text-sm text-ink-soft">
         Este vivero todavía no definió sus referencias. Creálas en{' '}
         <a href="/admin/referencias" className="text-primary underline underline-offset-4">
           Referencias
@@ -70,7 +70,7 @@ export default function AttributesEditor({
                 <input
                   value={current ?? ''}
                   onChange={(e) => setValues((p) => ({ ...p, [definition.key]: e.target.value }))}
-                  className="mt-1.5 w-full border border-line bg-white px-3 py-2.5 text-ink"
+                  className="mt-1.5 w-full rounded-card border border-line bg-card px-3 py-2.5 text-ink"
                 />
               </label>
             );
