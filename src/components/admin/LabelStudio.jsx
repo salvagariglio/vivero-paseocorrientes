@@ -191,6 +191,15 @@ export default function LabelStudio({ tenant, products, templates, definitions =
   );
 }
 
+/** Luminancia relativa, para saber si un fondo es claro u oscuro. */
+function isLight(hex) {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex ?? '');
+  if (!m) return true;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16) / 255);
+  const lin = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) > 0.4;
+}
+
 function Label({ product, tenant, template, theme, definitions }) {
   const s = tenant.settings ?? {};
   const promo = promoState(product);
@@ -223,7 +232,7 @@ function Label({ product, tenant, template, theme, definitions }) {
       style={{ background: bg, color: fg, border: `0.4mm solid ${accent}22` }}
     >
       {template.show_logo &&
-        (s.logo_url ? (
+        (s.logo_url && isLight(bg) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={s.logo_url} alt="" className="mb-1 h-4 w-auto object-contain" />
         ) : (

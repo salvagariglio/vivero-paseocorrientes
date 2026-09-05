@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Search } from 'lucide-react';
 import CatalogDrawer from './CatalogDrawer';
 
@@ -25,13 +24,13 @@ export default function TopBar({ tenant, tree }) {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           {s.logo_url ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={s.logo_url}
               alt={tenant.name}
-              width={160}
-              height={40}
-              className="h-9 w-auto object-contain"
-              priority
+              width={200}
+              height={34}
+              className="h-8 w-auto object-contain md:h-9"
             />
           ) : (
             <span className="truncate font-display text-2xl leading-none text-primary-deep">
