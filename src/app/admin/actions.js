@@ -8,6 +8,7 @@ import { slugify } from '@/lib/format';
 import { ROOT_DOMAIN } from '@/lib/config';
 import { resolveTheme, THEME_TOKENS, TYPESET_KEYS, DEFAULT_TYPESET } from '@/lib/theme';
 import { CONTENT_KEYS } from '@/lib/content';
+import { instagramHandle } from '@/lib/contact';
 
 /* Todas las escrituras pasan por RLS: aunque llegue otro tenant_id,
  * Postgres rechaza la fila si el usuario no es miembro. */
@@ -230,7 +231,8 @@ export async function saveSettings(_prev, formData) {
     show_prices: bool(formData, 'show_prices'),
     whatsapp: text(formData, 'whatsapp'),
     whatsapp_message: text(formData, 'whatsapp_message'),
-    instagram: text(formData, 'instagram'),
+    // Pegan el link que comparte la app: se guarda solo el usuario.
+    instagram: instagramHandle({ instagram: text(formData, 'instagram') }),
     email: text(formData, 'email'),
     phone: text(formData, 'phone'),
     address: text(formData, 'address'),

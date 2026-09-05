@@ -180,7 +180,7 @@ export default function SettingsForm({ tenant }) {
 
       <Fieldset title="Contacto y ubicación">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="WhatsApp" hint="Con código de país, sin espacios: 5493794123456">
+          <Field label="WhatsApp" hint="Con código de país. Se muestra tal como lo escribas.">
             <Input name="whatsapp" defaultValue={s.whatsapp ?? ''} />
           </Field>
           <Field label="Instagram" hint="Solo el usuario.">

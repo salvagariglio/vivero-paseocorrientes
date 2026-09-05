@@ -11,7 +11,7 @@ export default async function SiteLayout({ children }) {
     <div className="flex min-h-dvh flex-col">
       <TopBar tenant={tenant} tree={tree} />
       <main className="flex-1">{children}</main>
-      <Footer tenant={tenant} />
+      <Footer tenant={tenant} tree={tree} />
     </div>
   );
 }

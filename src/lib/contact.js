@@ -16,11 +16,21 @@ export function whatsappHref(settings) {
     : `https://wa.me/${number}`;
 }
 
-/** El usuario sin arroba, que es como se guarda y como se muestra. */
+/**
+ * El usuario sin arroba, que es como se guarda y como se muestra.
+ * Acepta lo que sea que peguen: @usuario, usuario, o el link que
+ * comparte la app, que viene con /, ?igsi=... y demas cola.
+ */
 export function instagramHandle(settings) {
   const raw = String(settings?.instagram ?? '').trim();
   if (!raw) return null;
-  return raw.replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
+  const handle = raw
+    .replace(/^https?:\/\//, '')
+    .replace(/^(www\.)?instagram\.com\//, '')
+    .replace(/^@/, '')
+    .split(/[/?#]/)[0]
+    .trim();
+  return handle || null;
 }
 
 export function instagramHref(settings) {
