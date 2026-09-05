@@ -2,8 +2,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PriceTag, { PromoBadge } from './PriceTag';
 import { AttributeChips } from './AttributeReferences';
+import CategoryIcon from '@/components/icons/CategoryIcon';
 
-export default function ProductCard({ product, settings, definitions = [], priority = false }) {
+export default function ProductCard({
+  product,
+  settings,
+  definitions = [],
+  iconByCategory = {},
+  priority = false,
+}) {
   return (
     <Link
       href={`/planta/${product.slug}`}
@@ -20,8 +27,11 @@ export default function ProductCard({ product, settings, definitions = [], prior
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <span className="font-display text-6xl text-primary/15">{product.name.charAt(0)}</span>
+          <div className="flex h-full items-center justify-center bg-surface">
+            <CategoryIcon
+              name={iconByCategory[product.category_id]}
+              className="h-auto w-[46%] text-primary/30"
+            />
           </div>
         )}
 

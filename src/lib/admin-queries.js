@@ -4,7 +4,7 @@ import { buildCategoryTree } from '@/lib/format';
 export async function adminCategoryTree(supabase, tenantId) {
   const { data } = await supabase
     .from('categories')
-    .select('id, parent_id, name, slug, description, image_url, position, is_active')
+    .select('id, parent_id, name, slug, description, image_url, icon, position, is_active')
     .eq('tenant_id', tenantId)
     .order('position', { ascending: true });
 

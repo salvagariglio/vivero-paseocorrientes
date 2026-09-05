@@ -7,7 +7,7 @@ import {
   getProductBySlug,
   getProductsInBranch,
 } from '@/lib/queries';
-import { categoryPath, formatPrice, promoState } from '@/lib/format';
+import { categoryPath, categoryIconMap, formatPrice, promoState } from '@/lib/format';
 import ProductGallery from '@/components/site/ProductGallery';
 import ProductCard from '@/components/site/ProductCard';
 import AttributeReferences from '@/components/site/AttributeReferences';
@@ -41,6 +41,7 @@ export default async function ProductPage({ params }) {
     getAttributeDefinitions(tenant.id),
   ]);
 
+  const iconByCategory = categoryIconMap(tree);
   const trail = product.category_id ? categoryPath(tree, product.category_id) : [];
 
   const siblings = product.category_id
@@ -78,7 +79,11 @@ export default async function ProductPage({ params }) {
       </nav>
 
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <ProductGallery images={images} name={product.name} />
+        <ProductGallery
+          images={images}
+          name={product.name}
+          icon={iconByCategory[product.category_id]}
+        />
 
         <div className="flex flex-col">
           <div className="mb-4">
@@ -171,7 +176,13 @@ export default async function ProductPage({ params }) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {siblings.map((p) => (
-              <ProductCard key={p.id} product={p} settings={s} definitions={definitions} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                settings={s}
+                definitions={definitions}
+                iconByCategory={iconByCategory}
+              />
             ))}
           </div>
         </section>

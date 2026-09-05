@@ -7,6 +7,7 @@ import { tenantTag } from '@/lib/queries';
 import { slugify } from '@/lib/format';
 import { ROOT_DOMAIN } from '@/lib/config';
 import { resolveTheme, THEME_TOKENS, TYPESET_KEYS, DEFAULT_TYPESET } from '@/lib/theme';
+import { CONTENT_KEYS } from '@/lib/content';
 
 /* Todas las escrituras pasan por RLS: aunque llegue otro tenant_id,
  * Postgres rechaza la fila si el usuario no es miembro. */
@@ -159,6 +160,8 @@ export async function saveCategory(_prev, formData) {
     slug: text(formData, 'slug') ? slugify(text(formData, 'slug')) : slugify(name),
     description: text(formData, 'description'),
     image_url: text(formData, 'image_url'),
+    // El icono es solo de familia: una subcategoria se distingue por nombre.
+    icon: parentId ? null : text(formData, 'icon'),
     parent_id: parentId,
     position: num(formData, 'position') ?? 0,
     is_active: bool(formData, 'is_active'),
@@ -210,11 +213,15 @@ export async function saveSettings(_prev, formData) {
   const payload = {
     tenant_id: tenant.id,
     logo_url: text(formData, 'logo_url'),
+    logo_dark_url: text(formData, 'logo_dark_url'),
     favicon_url: text(formData, 'favicon_url'),
     cover_url: text(formData, 'cover_url'),
     tagline: text(formData, 'tagline'),
     about: text(formData, 'about'),
     theme,
+    content: Object.fromEntries(
+      CONTENT_KEYS.map(({ key }) => [key, text(formData, `content.${key}`)]).filter(([, v]) => v)
+    ),
     typeset: TYPESET_KEYS.includes(text(formData, 'typeset'))
       ? text(formData, 'typeset')
       : DEFAULT_TYPESET,
@@ -222,6 +229,7 @@ export async function saveSettings(_prev, formData) {
     locale: text(formData, 'locale') || 'es-AR',
     show_prices: bool(formData, 'show_prices'),
     whatsapp: text(formData, 'whatsapp'),
+    whatsapp_message: text(formData, 'whatsapp_message'),
     instagram: text(formData, 'instagram'),
     email: text(formData, 'email'),
     phone: text(formData, 'phone'),

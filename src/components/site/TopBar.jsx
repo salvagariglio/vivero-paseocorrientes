@@ -1,23 +1,12 @@
 import Link from 'next/link';
 import { Search } from 'lucide-react';
+import { contactLinks } from '@/lib/contact';
 import CatalogDrawer from './CatalogDrawer';
 
 export default function TopBar({ tenant, tree }) {
   const s = tenant.settings ?? {};
 
-  const footerLinks = [
-    s.whatsapp && {
-      href: `https://wa.me/${String(s.whatsapp).replace(/\D/g, '')}`,
-      label: 'Escribinos por WhatsApp',
-      external: true,
-    },
-    s.instagram && {
-      href: `https://instagram.com/${String(s.instagram).replace(/^@/, '')}`,
-      label: `Instagram @${String(s.instagram).replace(/^@/, '')}`,
-      external: true,
-    },
-    s.maps_url && { href: s.maps_url, label: 'Cómo llegar', external: true },
-  ].filter(Boolean);
+  const links = contactLinks(s);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-surface/90 backdrop-blur">
@@ -41,13 +30,13 @@ export default function TopBar({ tenant, tree }) {
 
         <div className="flex items-center gap-1">
           <Link
-            href="/buscar"
+            href="/catalogo"
             className="rounded-full p-2.5 text-ink hover:bg-black/5 transition-colors"
-            aria-label="Buscar plantas"
+            aria-label="Buscar en el catálogo"
           >
             <Search size={19} strokeWidth={1.75} />
           </Link>
-          <CatalogDrawer tree={tree} tenantName={tenant.name} footerLinks={footerLinks} />
+          <CatalogDrawer tree={tree} tenantName={tenant.name} footerLinks={links} />
         </div>
       </div>
     </header>

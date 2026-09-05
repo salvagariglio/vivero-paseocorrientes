@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react';
 import { saveSettings } from '@/app/admin/actions';
 import { resolveTheme, THEME_TOKENS, TYPESET_KEYS } from '@/lib/theme';
+import { CONTENT_GROUPS } from '@/lib/content';
 import { Field, Input, Textarea, Select, Check, SubmitButton, FormStatus, Fieldset } from './Form';
 import ImageUploader from './ImageUploader';
 
@@ -63,6 +64,14 @@ export default function SettingsForm({ tenant }) {
           label="Logo"
           hint="Se ve en la barra superior y en las etiquetas. Fondo transparente queda mejor."
           defaultValue={s.logo_url ?? ''}
+        />
+        <ImageUploader
+          name="logo_dark_url"
+          tenantId={tenant.id}
+          folder="marca"
+          label="Logo para fondos oscuros"
+          hint="Versión clara del logo, para el pie del sitio. Si no cargás una, el logo común se muestra sobre una placa clara."
+          defaultValue={s.logo_dark_url ?? ''}
         />
         <ImageUploader
           name="cover_url"
@@ -138,6 +147,20 @@ export default function SettingsForm({ tenant }) {
         </Field>
       </Fieldset>
 
+      {CONTENT_GROUPS.map((group) => (
+        <Fieldset key={group.title} title={group.title} description={group.description}>
+          {group.keys.map(({ key, label, fallback }) => (
+            <Field key={key} label={label}>
+              <Input
+                name={`content.${key}`}
+                defaultValue={s.content?.[key] ?? ''}
+                placeholder={fallback}
+              />
+            </Field>
+          ))}
+        </Fieldset>
+      ))}
+
       <Fieldset title="Precios">
         <Check
           name="show_prices"
@@ -171,14 +194,29 @@ export default function SettingsForm({ tenant }) {
           </Field>
         </div>
 
-        <Field label="Dirección">
+        <Field
+          label="Mensaje de WhatsApp"
+          hint="Con lo que se abre la conversación cuando tocan el botón del pie."
+        >
+          <Input
+            name="whatsapp_message"
+            defaultValue={s.whatsapp_message ?? ''}
+            placeholder="Hola! Los encontré por la web y quería consultarles."
+            maxLength={200}
+          />
+        </Field>
+
+        <Field label="Dirección" hint="Se muestra en el pie y lleva al mapa.">
           <Input name="address" defaultValue={s.address ?? ''} />
         </Field>
-        <Field label="Link de Google Maps">
+        <Field
+          label="Link de Google Maps"
+          hint="Opcional: sin esto, la dirección abre la búsqueda en Google Maps."
+        >
           <Input name="maps_url" type="url" defaultValue={s.maps_url ?? ''} />
         </Field>
-        <Field label="Horarios" hint="Como quieras escribirlo. Ej: Lun a Sáb 9 a 19 h">
-          <Input name="opening_hours" defaultValue={s.opening_hours ?? ''} />
+        <Field label="Horarios" hint="Como quieras escribirlo. Podés usar varias líneas.">
+          <Textarea name="opening_hours" rows={2} defaultValue={s.opening_hours ?? ''} />
         </Field>
       </Fieldset>
 

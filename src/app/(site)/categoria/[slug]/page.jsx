@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireTenant } from '@/lib/tenant';
 import { getCategoryBySlug, getCategoryTree, getProductsInBranch, getAttributeDefinitions } from '@/lib/queries';
-import { categoryPath } from '@/lib/format';
+import { categoryPath, categoryIconMap } from '@/lib/format';
 import ProductCard from '@/components/site/ProductCard';
 
 export const revalidate = 120;
@@ -28,6 +28,7 @@ export default async function CategoryPage({ params }) {
     getAttributeDefinitions(tenant.id),
   ]);
 
+  const iconByCategory = categoryIconMap(tree);
   const trail = categoryPath(tree, category.id);
   const node = trail[trail.length - 1];
   const subcategories = node?.children ?? [];
@@ -97,6 +98,7 @@ export default async function CategoryPage({ params }) {
                   product={p}
                   settings={tenant.settings}
                   definitions={definitions}
+                  iconByCategory={iconByCategory}
                   priority={i < 4}
                 />
               ))}

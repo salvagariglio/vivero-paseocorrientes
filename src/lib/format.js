@@ -99,3 +99,24 @@ export function categoryPath(tree, id) {
   walk(tree, []);
   return path;
 }
+
+/** Total de plantas de una categoria contando sus subcategorias. */
+export function branchCount(node, counts) {
+  let total = counts?.[node.id] ?? 0;
+  for (const child of node.children ?? []) total += branchCount(child, counts);
+  return total;
+}
+
+/**
+ * Mapa category_id -> clave de dibujo. Solo las familias tienen dibujo,
+ * asi que cada subcategoria hereda el de su familia. Sirve de imagen por
+ * defecto para las plantas que todavia no tienen foto.
+ */
+export function categoryIconMap(tree, inherited = null, out = {}) {
+  for (const node of tree) {
+    const icon = node.icon || inherited;
+    if (icon) out[node.id] = icon;
+    if (node.children?.length) categoryIconMap(node.children, icon, out);
+  }
+  return out;
+}

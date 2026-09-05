@@ -24,7 +24,7 @@ export const getCategories = (tenantId) =>
       const supabase = createSupabasePublicClient();
       const { data, error } = await supabase
         .from('categories')
-        .select('id, parent_id, name, slug, description, image_url, position, is_active')
+        .select('id, parent_id, name, slug, description, image_url, icon, position, is_active')
         .eq('tenant_id', tenantId)
         .eq('is_active', true)
         .order('position', { ascending: true });
@@ -136,5 +136,28 @@ export const getAttributeDefinitions = (tenantId) =>
       return data ?? [];
     },
     ['attribute-definitions', tenantId],
+    { revalidate: 120, tags: [tenantTag(tenantId)] }
+  )();
+
+/** Cuantas plantas publicadas hay por categoria. Se suma por rama en la vista. */
+export const getProductCountsByCategory = (tenantId) =>
+  unstable_cache(
+    async () => {
+      const supabase = createSupabasePublicClient();
+      const { data, error } = await supabase
+        .from('products')
+        .select('category_id')
+        .eq('tenant_id', tenantId)
+        .eq('is_active', true);
+      if (error) throw error;
+
+      const counts = {};
+      for (const row of data ?? []) {
+        if (!row.category_id) continue;
+        counts[row.category_id] = (counts[row.category_id] ?? 0) + 1;
+      }
+      return counts;
+    },
+    ['category-counts', tenantId],
     { revalidate: 120, tags: [tenantTag(tenantId)] }
   )();

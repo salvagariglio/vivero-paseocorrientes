@@ -1,9 +1,10 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { saveCategory, deleteCategory } from '@/app/admin/actions';
 import { Field, Input, Textarea, Select, Check, SubmitButton, FormStatus } from './Form';
 import ImageUploader from './ImageUploader';
+import CategoryIcon, { CATEGORY_ICON_KEYS } from '@/components/icons/CategoryIcon';
 
 export default function CategoryForm({ category, categoryOptions = [], tenantId }) {
   const [state, formAction] = useActionState(saveCategory, null);
@@ -12,6 +13,10 @@ export default function CategoryForm({ category, categoryOptions = [], tenantId 
 
   // Una categoria no puede colgar de si misma ni de sus hijas.
   const options = categoryOptions.filter((o) => o.id !== c.id);
+
+  const [parentId, setParentId] = useState(c.parent_id ?? '');
+  const [icon, setIcon] = useState(c.icon ?? '');
+  const isFamily = !parentId;
 
   return (
     <div className="space-y-8">
@@ -24,7 +29,11 @@ export default function CategoryForm({ category, categoryOptions = [], tenantId 
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Cuelga de" hint="Dejala sin padre para que sea una categoría principal.">
-            <Select name="parent_id" defaultValue={c.parent_id ?? ''}>
+            <Select
+              name="parent_id"
+              value={parentId}
+              onChange={(e) => setParentId(e.target.value)}
+            >
               <option value="">Categoría principal</option>
               {options.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -51,6 +60,47 @@ export default function CategoryForm({ category, categoryOptions = [], tenantId 
           label="Imagen"
           defaultValue={c.image_url ?? ''}
         />
+
+        {isFamily && (
+          <div>
+            <span className="text-sm font-medium text-ink">Dibujo</span>
+            <span className="mt-0.5 block text-xs text-ink-soft">
+              Se ve en la portada. Solo las familias llevan dibujo; las subcategorías se
+              distinguen por su nombre.
+            </span>
+            <input type="hidden" name="icon" value={icon} />
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setIcon('')}
+                aria-pressed={icon === ''}
+                className={`flex size-16 items-center justify-center rounded-card border text-xs transition-colors ${
+                  icon === '' ? 'border-primary bg-primary/10 text-ink' : 'border-line text-ink-soft'
+                }`}
+              >
+                Sin dibujo
+              </button>
+
+              {CATEGORY_ICON_KEYS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setIcon(key)}
+                  aria-pressed={icon === key}
+                  title={key}
+                  className={`flex size-16 items-center justify-center rounded-card border transition-colors ${
+                    icon === key
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-line text-ink-soft hover:border-ink-soft'
+                  }`}
+                >
+                  <CategoryIcon name={key} size={34} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <Field label="Orden" hint="Menor aparece primero en el menú.">
           <Input name="position" type="number" defaultValue={c.position ?? 0} className="sm:w-40" />

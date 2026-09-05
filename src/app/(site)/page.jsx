@@ -1,24 +1,30 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { requireTenant } from '@/lib/tenant';
-import { getAttributeDefinitions, getCategoryTree, getProducts } from '@/lib/queries';
+import {
+  getAttributeDefinitions,
+  getCategoryTree,
+  getProductCountsByCategory,
+  getProducts,
+} from '@/lib/queries';
+import { branchCount, categoryIconMap } from '@/lib/format';
+import { copy } from '@/lib/content';
+import { mapsHref } from '@/lib/contact';
 import ProductCard from '@/components/site/ProductCard';
+import CategoryIcon from '@/components/icons/CategoryIcon';
 
 export const revalidate = 120;
 
 /** Banda verde con el titulo, el recurso de seccion del manual. */
-function SectionHead({ title, note, href, hrefLabel }) {
+function SectionHead({ title, href, hrefLabel }) {
   return (
-    <div className="mb-5">
-      <div className="band flex flex-wrap items-center justify-between gap-3 px-7 py-3.5">
-        <h2 className="font-display text-2xl leading-none">{title}</h2>
-        {href && (
-          <Link href={href} className="caption text-[0.65rem] underline underline-offset-4">
-            {hrefLabel}
-          </Link>
-        )}
-      </div>
-      {note && <p className="mt-3 px-1 text-sm text-earth">{note}</p>}
+    <div className="band flex flex-wrap items-center justify-between gap-3 px-7 py-3.5">
+      <h2 className="font-display text-2xl leading-none">{title}</h2>
+      {href && (
+        <Link href={href} className="caption text-[0.65rem] underline underline-offset-4">
+          {hrefLabel}
+        </Link>
+      )}
     </div>
   );
 }
@@ -27,15 +33,19 @@ export default async function HomePage() {
   const tenant = await requireTenant();
   const s = tenant.settings;
 
-  const [tree, featured, catalogo, definitions] = await Promise.all([
+  const [tree, featured, catalogo, definitions, counts] = await Promise.all([
     getCategoryTree(tenant.id),
     getProducts(tenant.id, { featured: true, limit: 8 }),
     getProducts(tenant.id, { limit: 60 }),
     getAttributeDefinitions(tenant.id),
+    getProductCountsByCategory(tenant.id),
   ]);
 
+  const iconByCategory = categoryIconMap(tree);
   const onPromo = catalogo.filter((p) => p.promo_price != null).slice(0, 4);
   const latest = catalogo.slice(0, 8);
+  const categoriesNote = copy(s, 'categories_note');
+  const maps = mapsHref(s);
 
   return (
     <>
@@ -54,14 +64,14 @@ export default async function HomePage() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href={tree[0] ? `/categoria/${tree[0].slug}` : '/buscar'}
+                href="/catalogo"
                 className="rounded-pill bg-primary px-7 py-3 text-sm font-medium text-on-dark transition-opacity hover:opacity-90"
               >
-                Ver el catálogo
+                {copy(s, 'hero_cta')}
               </Link>
-              {s.maps_url && (
+              {maps && (
                 <a
-                  href={s.maps_url}
+                  href={maps}
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-pill border border-primary/30 px-7 py-3 text-sm font-medium text-primary-deep transition-colors hover:border-primary"
@@ -90,33 +100,52 @@ export default async function HomePage() {
       <div className="mx-auto max-w-6xl px-5 pb-16">
         {tree.length > 0 && (
           <section className="mb-16">
-            <SectionHead title="Qué buscás" note="Cada familia agrupa sus subcategorías y plantas." />
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {tree.map((cat) => (
-                <li key={cat.id}>
-                  <Link
-                    href={`/categoria/${cat.slug}`}
-                    className="panel flex h-full flex-col gap-2 p-6 transition-colors hover:bg-line/60"
-                  >
-                    <span className="font-display text-2xl text-primary-deep">{cat.name}</span>
-                    {cat.children.length > 0 && (
-                      <span className="text-sm leading-relaxed text-earth">
-                        {cat.children.map((c) => c.name).join(' · ')}
+            <SectionHead title={copy(s, 'categories_title')} />
+            {categoriesNote && <p className="mt-3 px-1 text-sm text-earth">{categoriesNote}</p>}
+
+            <ul className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3">
+              {tree.map((cat) => {
+                const total = branchCount(cat, counts);
+                return (
+                  <li key={cat.id}>
+                    <Link
+                      href={`/categoria/${cat.slug}`}
+                      className="panel flex h-full flex-col items-center gap-2.5 px-4 py-7 text-center transition-colors hover:bg-line/60"
+                    >
+                      <CategoryIcon
+                        name={cat.icon}
+                        size={84}
+                        className="text-primary"
+                        title={cat.name}
+                      />
+                      <span className="font-display text-xl leading-tight text-primary-deep">
+                        {cat.name}
                       </span>
-                    )}
-                  </Link>
-                </li>
-              ))}
+                      {total > 0 && (
+                        <span className="caption text-[0.6rem] text-earth">
+                          {total} {total === 1 ? 'planta' : 'plantas'}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}
 
         {onPromo.length > 0 && (
           <section className="mb-16">
-            <SectionHead title="En promoción" note="Precios vigentes esta semana." />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <SectionHead title={copy(s, 'promos_title')} />
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {onPromo.map((p) => (
-                <ProductCard key={p.id} product={p} settings={s} definitions={definitions} />
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  settings={s}
+                  definitions={definitions}
+                  iconByCategory={iconByCategory}
+                />
               ))}
             </div>
           </section>
@@ -125,17 +154,18 @@ export default async function HomePage() {
         {(featured.length > 0 || latest.length > 0) && (
           <section>
             <SectionHead
-              title={featured.length > 0 ? 'Destacadas' : 'En el vivero'}
-              href="/buscar"
+              title={featured.length > 0 ? copy(s, 'featured_title') : 'En el vivero'}
+              href="/catalogo"
               hrefLabel="Ver todas"
             />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {(featured.length > 0 ? featured : latest).map((p, i) => (
                 <ProductCard
                   key={p.id}
                   product={p}
                   settings={s}
                   definitions={definitions}
+                  iconByCategory={iconByCategory}
                   priority={i < 4}
                 />
               ))}

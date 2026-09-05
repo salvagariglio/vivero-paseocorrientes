@@ -2,15 +2,16 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import CategoryIcon from '@/components/icons/CategoryIcon';
 
-export default function ProductGallery({ images = [], name }) {
+export default function ProductGallery({ images = [], name, icon = null }) {
   const [active, setActive] = useState(0);
   const current = images[active];
 
   if (!current) {
     return (
       <div className="flex aspect-[4/5] items-center justify-center rounded-lg bg-surface-alt">
-        <span className="font-display text-7xl text-primary/20">{name.charAt(0)}</span>
+        <CategoryIcon name={icon} className="h-auto w-2/5 text-primary/30" title={name} />
       </div>
     );
   }
