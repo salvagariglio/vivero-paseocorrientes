@@ -137,7 +137,7 @@ export default async function HomePage() {
         {onPromo.length > 0 && (
           <section className="mb-16">
             <SectionHead title={copy(s, 'promos_title')} />
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {onPromo.map((p) => (
                 <ProductCard
                   key={p.id}
@@ -158,7 +158,7 @@ export default async function HomePage() {
               href="/catalogo"
               hrefLabel="Ver todas"
             />
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {(featured.length > 0 ? featured : latest).map((p, i) => (
                 <ProductCard
                   key={p.id}

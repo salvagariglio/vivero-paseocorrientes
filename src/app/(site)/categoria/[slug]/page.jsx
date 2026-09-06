@@ -91,7 +91,7 @@ export default async function CategoryPage({ params }) {
             <p className="mb-5 caption text-[0.65rem] text-earth">
               {products.length} {products.length === 1 ? 'planta' : 'plantas'}
             </p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {products.map((p, i) => (
                 <ProductCard
                   key={p.id}

@@ -174,7 +174,7 @@ export default async function ProductPage({ params }) {
               También en {trail[trail.length - 1]?.name ?? 'el vivero'}
             </h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {siblings.map((p) => (
               <ProductCard
                 key={p.id}

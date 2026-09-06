@@ -72,7 +72,7 @@ export default async function CatalogPage({ searchParams }) {
           No encontramos nada con ese nombre. Probá con otro término o entrá por una familia.
         </div>
       ) : (
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {products.map((p, i) => (
             <ProductCard
               key={p.id}

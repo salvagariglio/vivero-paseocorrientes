@@ -14,9 +14,9 @@ export default function ProductCard({
   return (
     <Link
       href={`/planta/${product.slug}`}
-      className="panel group flex flex-col overflow-hidden transition-shadow hover:shadow-[0_18px_36px_-24px_rgba(44,76,71,0.55)]"
+      className="group flex flex-col overflow-hidden rounded-card bg-card ring-1 ring-line/60 transition-shadow hover:shadow-[0_18px_36px_-24px_rgba(44,76,71,0.55)]"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-surface">
+      <div className="relative aspect-square overflow-hidden bg-surface-alt sm:aspect-[4/5]">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -27,7 +27,7 @@ export default function ProductCard({
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-surface">
+          <div className="flex h-full items-center justify-center">
             <CategoryIcon
               name={iconByCategory[product.category_id]}
               className="h-auto w-[46%] text-primary/30"
@@ -40,8 +40,8 @@ export default function ProductCard({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 px-4 py-4">
-        <h3 className="font-display text-xl leading-snug text-primary-deep">{product.name}</h3>
+      <div className="flex flex-1 flex-col gap-1.5 px-3.5 py-3.5 sm:px-4 sm:py-4">
+        <h3 className="font-display text-lg leading-snug text-primary-deep sm:text-xl">{product.name}</h3>
 
         {product.scientific_name && (
           <p className="binomial text-sm leading-tight">{product.scientific_name}</p>
