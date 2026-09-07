@@ -12,6 +12,7 @@ import ProductGallery from '@/components/site/ProductGallery';
 import ProductCard from '@/components/site/ProductCard';
 import AttributeReferences from '@/components/site/AttributeReferences';
 import { PromoBadge } from '@/components/site/PriceTag';
+import AddToOrder from '@/components/site/AddToOrder';
 
 export const revalidate = 120;
 
@@ -141,6 +142,18 @@ export default async function ProductPage({ params }) {
               Consultar por WhatsApp
             </a>
           )}
+          <AddToOrder
+            className="mt-4"
+            product={{
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              detail:
+                [product.scientific_name, product.attributes?.envase]
+                  .filter(Boolean)
+                  .join(' · ') || null,
+            }}
+          />
         </div>
       </div>
 

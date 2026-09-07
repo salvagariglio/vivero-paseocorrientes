@@ -60,6 +60,7 @@ export function validUntil(createdAt, validDays) {
 }
 
 export const QUOTE_STATUS = [
+  { value: 'solicitud', label: 'Consulta del sitio' },
   { value: 'borrador', label: 'Borrador' },
   { value: 'enviado', label: 'Enviado' },
   { value: 'aceptado', label: 'Aceptado' },
@@ -69,4 +70,13 @@ export const QUOTE_STATUS = [
 
 export function statusLabel(value) {
   return QUOTE_STATUS.find((s) => s.value === value)?.label ?? value;
+}
+
+/** Una consulta del sitio todavia no tiene numero correlativo. */
+export function isRequest(quote) {
+  return quote?.source === 'sitio' && Number(quote?.number) < 0;
+}
+
+export function quoteLabel(quote) {
+  return isRequest(quote) ? 'Consulta' : `#${quote?.number}`;
 }

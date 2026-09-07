@@ -97,6 +97,24 @@ export default function QuoteBuilder({ quote, catalog = [], paymentMethods = [],
     ]);
   }
 
+  /** Consultas del sitio: los items llegan sin precio. */
+  const missingPrices = items.filter((i) => i.product_id && !i.unit_price).length;
+
+  function pullPrices() {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (!item.product_id || item.unit_price) return item;
+        const product = catalog.find((c) => c.id === item.product_id);
+        if (!product) return item;
+        return {
+          ...item,
+          unit_price: currentPrice(product),
+          allow_discount: product.allow_discount !== false,
+        };
+      })
+    );
+  }
+
   const update = (key, patch) =>
     setItems((prev) => prev.map((i) => (i.key === key ? { ...i, ...patch } : i)));
 
@@ -159,6 +177,16 @@ export default function QuoteBuilder({ quote, catalog = [], paymentMethods = [],
               </li>
             ))}
           </ul>
+        )}
+
+        {missingPrices > 0 && (
+          <button
+            type="button"
+            onClick={pullPrices}
+            className="mt-3 mr-4 inline-flex items-center gap-1.5 rounded-pill border border-primary/30 px-4 py-2 text-sm text-primary-deep transition-colors hover:border-primary"
+          >
+            Traer precios del catálogo ({missingPrices})
+          </button>
         )}
 
         <button

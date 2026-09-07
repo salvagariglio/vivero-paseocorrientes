@@ -2,12 +2,13 @@ import Link from 'next/link';
 import { requireAdminContext } from '@/lib/auth';
 import { adminQuotes } from '@/lib/admin-queries';
 import { formatPrice } from '@/lib/format';
-import { calculateQuote, statusLabel } from '@/lib/quote';
+import { calculateQuote, quoteLabel, isRequest, statusLabel } from '@/lib/quote';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Presupuestos' };
 
 const TONE = {
+  solicitud: 'border-accent/40 text-accent',
   borrador: 'border-line text-ink-soft',
   enviado: 'border-secondary/40 text-secondary',
   aceptado: 'border-primary/40 text-primary',
@@ -63,8 +64,12 @@ export default async function QuotesPage() {
                   href={`/admin/presupuestos/${quote.id}`}
                   className="flex flex-wrap items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface"
                 >
-                  <span className="w-14 shrink-0 font-display text-lg tabular-nums text-primary-deep">
-                    #{quote.number}
+                  <span
+                    className={`w-24 shrink-0 font-display leading-none text-primary-deep ${
+                      isRequest(quote) ? 'text-sm' : 'text-lg tabular-nums'
+                    }`}
+                  >
+                    {quoteLabel(quote)}
                   </span>
 
                   <span className="min-w-40 flex-1">
@@ -86,7 +91,11 @@ export default async function QuotesPage() {
                   </span>
 
                   <span className="w-28 shrink-0 text-right text-sm font-medium tabular-nums text-ink">
-                    {formatPrice(totals.total, tenant.settings)}
+                    {isRequest(quote) ? (
+                      <span className="text-earth">Sin cotizar</span>
+                    ) : (
+                      formatPrice(totals.total, tenant.settings)
+                    )}
                   </span>
                 </Link>
               </li>

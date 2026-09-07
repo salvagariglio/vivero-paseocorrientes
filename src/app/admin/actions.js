@@ -670,3 +670,15 @@ export async function deleteQuote(formData) {
   revalidatePath('/admin/presupuestos');
   redirect('/admin/presupuestos');
 }
+
+/** Una consulta del sitio pasa a presupuesto y recien ahi toma numero. */
+export async function promoteQuote(formData) {
+  const { supabase } = await requireAdminContext();
+  const id = text(formData, 'id');
+  if (!id) return;
+
+  await supabase.rpc('promote_quote_request', { p_quote: id });
+
+  revalidatePath('/admin/presupuestos');
+  revalidatePath(`/admin/presupuestos/${id}`);
+}
