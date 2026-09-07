@@ -79,3 +79,54 @@ export async function adminAttributeDefinitions(supabase, tenantId) {
 
   return data ?? [];
 }
+
+export async function adminPaymentMethods(supabase, tenantId) {
+  const { data } = await supabase
+    .from('payment_methods')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .order('position', { ascending: true });
+
+  return data ?? [];
+}
+
+export async function adminQuotes(supabase, tenantId) {
+  const { data } = await supabase
+    .from('quotes')
+    .select('*, items:quote_items(unit_price, qty, allow_discount)')
+    .eq('tenant_id', tenantId)
+    .order('number', { ascending: false });
+
+  return data ?? [];
+}
+
+export async function adminQuote(supabase, tenantId, id) {
+  const { data } = await supabase
+    .from('quotes')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('id', id)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  const { data: items } = await supabase
+    .from('quote_items')
+    .select('*')
+    .eq('quote_id', id)
+    .order('position', { ascending: true });
+
+  return { ...data, items: items ?? [] };
+}
+
+/** Catalogo minimo para el buscador del presupuestador. */
+export async function adminPriceList(supabase, tenantId) {
+  const { data } = await supabase
+    .from('products')
+    .select('id, name, scientific_name, sku, price, promo_price, promo_starts_at, promo_ends_at, allow_discount, attributes')
+    .eq('tenant_id', tenantId)
+    .eq('is_active', true)
+    .order('name', { ascending: true });
+
+  return data ?? [];
+}

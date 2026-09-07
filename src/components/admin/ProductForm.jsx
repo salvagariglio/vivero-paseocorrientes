@@ -149,6 +149,12 @@ export default function ProductForm({ product, categoryOptions = [], definitions
             defaultChecked={isNew ? true : p.is_active}
           />
           <Check
+            name="allow_discount"
+            label="Admite descuento"
+            hint="Si lo desmarcás, el descuento general de un presupuesto no la toca."
+            defaultChecked={isNew ? true : p.allow_discount !== false}
+          />
+          <Check
             name="is_featured"
             label="Destacada en la portada"
             defaultChecked={p.is_featured ?? false}

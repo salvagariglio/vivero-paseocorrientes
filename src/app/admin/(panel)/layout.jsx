@@ -9,7 +9,7 @@ export default async function PanelLayout({ children }) {
 
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[16rem_1fr]">
-      <aside className="border-b border-line bg-surface md:sticky md:top-0 md:h-dvh md:border-b-0 md:border-r">
+      <aside className="no-print border-b border-line bg-surface md:sticky md:top-0 md:h-dvh md:border-b-0 md:border-r">
         <div className="flex h-full flex-col p-5">
           <Link href="/admin" className="block">
             <p className="font-display text-2xl leading-tight text-ink">{tenant.name}</p>

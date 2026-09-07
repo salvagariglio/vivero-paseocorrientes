@@ -1,7 +1,9 @@
 import { requireAdminContext } from '@/lib/auth';
+import { adminPaymentMethods } from '@/lib/admin-queries';
 import { can } from '@/lib/auth';
 import { setPrimaryDomain, deleteDomain } from '@/app/admin/actions';
 import SettingsForm from '@/components/admin/SettingsForm';
+import PaymentMethods from '@/components/admin/PaymentMethods';
 import DomainForm from '@/components/admin/DomainForm';
 
 export const dynamic = 'force-dynamic';
@@ -9,6 +11,8 @@ export const metadata = { title: 'Marca y datos' };
 
 export default async function SettingsPage() {
   const { tenant, supabase, role } = await requireAdminContext();
+
+  const paymentMethods = await adminPaymentMethods(supabase, tenant.id);
 
   const { data: domains } = await supabase
     .from('tenant_domains')
@@ -27,6 +31,19 @@ export default async function SettingsPage() {
       <div className="mt-8">
         <SettingsForm tenant={tenant} />
       </div>
+
+      <section className="mt-16 border-t border-line pt-8">
+        <h2 className="font-display text-2xl leading-none text-ink">Formas de pago</h2>
+        <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-ink-soft">
+          Se usan al armar un presupuesto. El ajuste es un porcentaje con signo: negativo
+          descuenta (efectivo −10), positivo recarga (crédito +12). Al guardar un presupuesto
+          el porcentaje queda congelado ahí, así que cambiarlo acá no toca los ya emitidos.
+        </p>
+
+        <div className="mt-6">
+          <PaymentMethods methods={paymentMethods} />
+        </div>
+      </section>
 
       {can(role, 'admin') && (
         <section className="mt-16 border-t border-line pt-8">

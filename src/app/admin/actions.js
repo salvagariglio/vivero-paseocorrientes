@@ -81,6 +81,7 @@ export async function saveProduct(_prev, formData) {
     attributes,
     is_active: bool(formData, 'is_active'),
     is_featured: bool(formData, 'is_featured'),
+    allow_discount: bool(formData, 'allow_discount'),
     position: num(formData, 'position') ?? 0,
   };
 
@@ -501,4 +502,171 @@ export async function deleteAttributeDefinition(formData) {
 
   refresh(tenant.id);
   redirect('/admin/referencias');
+}
+
+/* ------------------------------------------------------------------ */
+/* Formas de pago                                                      */
+/* ------------------------------------------------------------------ */
+
+export async function savePaymentMethod(_prev, formData) {
+  const { tenant, supabase } = await requireAdminContext();
+
+  const id = text(formData, 'id');
+  const name = text(formData, 'name');
+  if (!name) return fail('Poné un nombre para la forma de pago.');
+
+  const adjust = num(formData, 'adjust_pct') ?? 0;
+  if (adjust < -100 || adjust > 100) {
+    return fail('El ajuste tiene que estar entre -100 y 100.');
+  }
+
+  const payload = {
+    tenant_id: tenant.id,
+    name,
+    adjust_pct: adjust,
+    position: num(formData, 'position') ?? 0,
+    is_active: bool(formData, 'is_active'),
+  };
+
+  const query = id
+    ? supabase.from('payment_methods').update(payload).eq('id', id).eq('tenant_id', tenant.id)
+    : supabase.from('payment_methods').insert(payload);
+
+  const { error } = await query;
+  if (error) return fail(error.message);
+
+  revalidatePath('/admin/ajustes');
+  revalidatePath('/admin/presupuestos');
+  return { ok: true, message: 'Forma de pago guardada.' };
+}
+
+export async function deletePaymentMethod(formData) {
+  const { tenant, supabase } = await requireAdminContext();
+  const id = text(formData, 'id');
+  if (!id) return;
+
+  await supabase.from('payment_methods').delete().eq('id', id).eq('tenant_id', tenant.id);
+  revalidatePath('/admin/ajustes');
+}
+
+/* ------------------------------------------------------------------ */
+/* Presupuestos                                                        */
+/* ------------------------------------------------------------------ */
+
+export async function saveQuote(_prev, formData) {
+  const { tenant, supabase, user } = await requireAdminContext();
+
+  const id = text(formData, 'id');
+
+  let items = [];
+  try {
+    items = JSON.parse(text(formData, 'items') || '[]');
+  } catch {
+    return fail('No pudimos leer los ítems del presupuesto.');
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    return fail('Agregá al menos una planta al presupuesto.');
+  }
+
+  // La forma de pago se copia al presupuesto: si manana cambia el
+  // porcentaje, este documento sigue valiendo lo que decia.
+  const methodId = text(formData, 'payment_method_id');
+  let methodName = null;
+  let methodAdjust = 0;
+  if (methodId) {
+    const { data: method } = await supabase
+      .from('payment_methods')
+      .select('name, adjust_pct')
+      .eq('id', methodId)
+      .eq('tenant_id', tenant.id)
+      .maybeSingle();
+    if (method) {
+      methodName = method.name;
+      methodAdjust = Number(method.adjust_pct) || 0;
+    }
+  }
+
+  const payload = {
+    tenant_id: tenant.id,
+    status: text(formData, 'status') || 'borrador',
+    customer_name: text(formData, 'customer_name'),
+    customer_phone: text(formData, 'customer_phone'),
+    customer_email: text(formData, 'customer_email'),
+    payment_method_id: methodId,
+    payment_method_name: methodName,
+    payment_adjust_pct: methodAdjust,
+    discount_pct: num(formData, 'discount_pct') ?? 0,
+    notes: text(formData, 'notes'),
+    valid_days: num(formData, 'valid_days') ?? 15,
+  };
+
+  let quoteId = id;
+
+  if (id) {
+    const { error } = await supabase
+      .from('quotes')
+      .update(payload)
+      .eq('id', id)
+      .eq('tenant_id', tenant.id);
+    if (error) return fail(error.message);
+  } else {
+    const { data: number } = await supabase.rpc('next_quote_number', { p_tenant: tenant.id });
+    const { data, error } = await supabase
+      .from('quotes')
+      .insert({ ...payload, number: number ?? 1, created_by: user.id })
+      .select('id')
+      .single();
+    if (error) {
+      if (error.code === '23505') return fail('Se generaron dos presupuestos a la vez. Probá de nuevo.');
+      return fail(error.message);
+    }
+    quoteId = data.id;
+  }
+
+  await supabase.from('quote_items').delete().eq('quote_id', quoteId);
+
+  const rows = items
+    .filter((i) => i?.name && Number(i.qty) > 0)
+    .map((item, index) => ({
+      tenant_id: tenant.id,
+      quote_id: quoteId,
+      product_id: item.product_id ?? null,
+      name: String(item.name).slice(0, 200),
+      detail: item.detail ? String(item.detail).slice(0, 200) : null,
+      unit_price: Number(item.unit_price) || 0,
+      qty: Number(item.qty) || 1,
+      allow_discount: item.allow_discount !== false,
+      position: index,
+    }));
+
+  const { error: itemsError } = await supabase.from('quote_items').insert(rows);
+  if (itemsError) return fail(itemsError.message);
+
+  revalidatePath('/admin/presupuestos');
+  redirect(`/admin/presupuestos/${quoteId}?guardado=1`);
+}
+
+export async function updateQuoteStatus(formData) {
+  const { tenant, supabase } = await requireAdminContext();
+  const id = text(formData, 'id');
+  const status = text(formData, 'status');
+
+  await supabase
+    .from('quotes')
+    .update({ status })
+    .eq('id', id)
+    .eq('tenant_id', tenant.id);
+
+  revalidatePath('/admin/presupuestos');
+  revalidatePath(`/admin/presupuestos/${id}`);
+}
+
+export async function deleteQuote(formData) {
+  const { tenant, supabase } = await requireAdminContext();
+  const id = text(formData, 'id');
+  if (!id) return;
+
+  await supabase.from('quotes').delete().eq('id', id).eq('tenant_id', tenant.id);
+  revalidatePath('/admin/presupuestos');
+  redirect('/admin/presupuestos');
 }

@@ -187,3 +187,13 @@
     print-color-adjust: exact;
   }
 }
+
+/* La hoja de presupuesto: en pantalla es papel, al imprimir es la pagina. */
+@media print {
+  .quote-sheet {
+    max-width: none;
+    padding: 0;
+    --tw-ring-shadow: 0 0 #0000;
+    box-shadow: none;
+  }
+}
