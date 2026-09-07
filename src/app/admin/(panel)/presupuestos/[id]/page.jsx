@@ -65,8 +65,8 @@ export default async function EditQuotePage({ params, searchParams }) {
             </p>
           )}
           <p className="mt-3 max-w-[70ch] text-sm leading-relaxed text-ink-soft">
-            El cliente no vio precios. Traé los del catálogo, ajustá lo que haga falta y
-            convertila en presupuesto: recién ahí toma número.
+            El cliente escribió lo que necesita; no vio ningún precio. Armá el presupuesto
+            con el buscador de acá abajo y convertilo: recién ahí toma número.
           </p>
 
           <form action={promoteQuote} className="mt-4">

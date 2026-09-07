@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { contactLinks } from '@/lib/contact';
 import CatalogDrawer from './CatalogDrawer';
-import OrderLink from './OrderLink';
 
 export default function TopBar({ tenant, tree }) {
   const s = tenant.settings ?? {};
@@ -37,7 +36,6 @@ export default function TopBar({ tenant, tree }) {
           >
             <Search size={19} strokeWidth={1.75} />
           </Link>
-          <OrderLink />
           <CatalogDrawer tree={tree} tenantName={tenant.name} footerLinks={links} />
         </div>
       </div>

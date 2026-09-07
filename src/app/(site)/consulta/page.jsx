@@ -1,12 +1,16 @@
 import { requireTenant } from '@/lib/tenant';
-import OrderForm from '@/components/site/OrderForm';
+import ConsultaForm from '@/components/site/ConsultaForm';
 
 export const metadata = { title: 'Pedir presupuesto' };
 
-export default async function OrderPage() {
+export default async function ConsultaPage({ searchParams }) {
+  const { planta } = await searchParams;
   const tenant = await requireTenant();
   const s = tenant.settings ?? {};
   const whatsapp = s.whatsapp ? String(s.whatsapp).replace(/\D/g, '') : null;
+
+  // Si llegó desde una ficha, el mensaje arranca nombrando esa planta.
+  const sugerencia = planta ? `Me interesa ${String(planta).slice(0, 120)}. ` : null;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -16,13 +20,13 @@ export default async function OrderPage() {
       <div className="mt-4 h-0.5 w-14 rounded-pill bg-accent" />
 
       <p className="mt-5 max-w-[58ch] leading-relaxed text-earth">
-        Armá la lista con lo que necesitás y las cantidades. Lo revisamos, vemos
-        disponibilidad y te pasamos el precio final: por volumen o por temporada suele
-        cambiar respecto de la lista.
+        Escribinos qué necesitás y te armamos el presupuesto. Los precios del catálogo son de
+        referencia: por cantidad, por temporada o según el envase suelen cambiar, así que
+        preferimos pasarte el número real.
       </p>
 
       <div className="mt-10">
-        <OrderForm whatsapp={whatsapp} />
+        <ConsultaForm whatsapp={whatsapp} sugerencia={sugerencia} />
       </div>
     </div>
   );
