@@ -156,15 +156,13 @@ otro.
 ## Estado actual
 
 - **Proyecto Supabase**: `Viveros` (`yblkzoutcoimwwwfhzle`, us-east-2). Migraciones
-  0001–0004 aplicadas: tablas, RLS, funciones, bucket `media` y el vivero
-  Paseo Corrientes con su paleta y sus referencias.
+  0001–0013 aplicadas: tablas, RLS, funciones, bucket `media`, el vivero
+  Paseo Corrientes con su paleta y sus referencias, y la lista de precios.
 - **Deploy**: https://vivero-paseocorrientes.vercel.app (Vercel, deploy
   automatico en cada push a `main`).
 - **Catalogo cargado**: 448 productos importados del listado de precios, en
   6 familias y 22 subcategorias. La planilla trae centavos de una formula de
   markup; el vivero elige donde cortarlos y hoy estan al peso.
-- **Pendiente de aplicar**: `0013_lista_de_precios.sql`. Sin esa migracion,
-  `/admin/precios` no funciona.
 - **Vercel Authentication esta activa**: el sitio solo lo ve quien tenga
   acceso al equipo de Vercel. Al conectar el dominio propio queda publico;
   hasta entonces los QR no le sirven a un cliente en el local.
