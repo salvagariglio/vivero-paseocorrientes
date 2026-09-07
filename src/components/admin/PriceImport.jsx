@@ -29,7 +29,7 @@ function Boton({ children, pendingLabel = 'Leyendo…', variant = 'primary', dis
 }
 
 /** El detalle de un grupo: se abre solo si la persona quiere mirarlo. */
-function Grupo({ label, items, settings }) {
+function Grupo({ label, items, settings, note }) {
   const [open, setOpen] = useState(false);
   if (items.length === 0) return null;
 
@@ -58,6 +58,7 @@ function Grupo({ label, items, settings }) {
                 {item.via === 'nombre' && (
                   <span className="text-ink-soft"> · enganchada por nombre</span>
                 )}
+                {note && <span className="text-ink-soft"> · {note(item)}</span>}
               </span>
               <span className="shrink-0 tabular-nums text-ink-soft">
                 {formatPrice(item.oldPrice, settings) ?? 'sin precio'}
@@ -80,12 +81,40 @@ function Importer({ settings, onReset }) {
   const [preview, previewAction] = useActionState(previewPriceImport, null);
   const [applied, applyAction] = useActionState(applyPriceImport, null);
   const [file, setFile] = useState(null);
+  // La categoria que elige la persona para cada valor de la planilla.
+  // Se guarda por etiqueta, asi sobrevive a un "volver a leer".
+  const [categoryChoice, setCategoryChoice] = useState({});
 
   const saved = settings?.price_import ?? {};
   const headers = preview?.headers ?? [];
   const columns = preview?.columns ?? saved.columns ?? {};
   const rounding = preview?.rounding ?? saved.rounding ?? DEFAULT_ROUNDING;
   const items = preview?.ok ? preview.items : [];
+  const categories = preview?.categories ?? [];
+
+  // Lo que resolvio la previsualizacion, y encima lo que elija la persona.
+  const resolved = {};
+  const categoryLabels = [];
+  for (const item of items) {
+    if (!item.categoryLabel) continue;
+    if (!(item.categoryLabel in resolved)) resolved[item.categoryLabel] = item.categorySlug ?? '';
+    if (item.outcome !== 'alta') continue;
+    const found = categoryLabels.find((c) => c.label === item.categoryLabel);
+    if (found) found.count += 1;
+    else categoryLabels.push({ label: item.categoryLabel, count: 1 });
+  }
+
+  const slugFor = (label) => categoryChoice[label] ?? resolved[label] ?? '';
+  const categoryOf = (item) => slugFor(item.categoryLabel);
+  const categoryName = (slug) => categories.find((c) => c.slug === slug)?.name ?? null;
+
+  // Se guarda el mapa de TODA la planilla, no solo el de las altas: la
+  // proxima vez ya viene resuelto aunque las filas que lleguen sean otras.
+  const categoryMap = Object.fromEntries(
+    Object.keys(resolved)
+      .filter((label) => slugFor(label))
+      .map((label) => [label, slugFor(label)])
+  );
 
   if (applied?.applied) {
     return (
@@ -113,7 +142,7 @@ function Importer({ settings, onReset }) {
           name: item.name,
           scientific: item.scientific,
           envase: item.envase,
-          categorySlug: item.categorySlug,
+          categorySlug: categoryOf(item) || null,
           price: item.price,
           outcome: item.outcome,
         }
@@ -236,6 +265,11 @@ function Importer({ settings, onReset }) {
                 label={label}
                 items={items.filter((item) => item.outcome === key)}
                 settings={settings}
+                note={
+                  key === 'alta'
+                    ? (item) => categoryName(categoryOf(item)) ?? 'sin categoría'
+                    : undefined
+                }
               />
             ))}
 
@@ -275,9 +309,45 @@ function Importer({ settings, onReset }) {
           <form action={applyAction} className="mt-8 rounded-card border border-line bg-card p-6">
             <input type="hidden" name="items" value={JSON.stringify(payload)} />
             <input type="hidden" name="columns" value={JSON.stringify(preview.columns)} />
+            <input type="hidden" name="categories" value={JSON.stringify(categoryMap)} />
             <input type="hidden" name="rounding" value={preview.rounding} />
             <input type="hidden" name="filename" value={preview.filename} />
             <input type="hidden" name="absent" value={preview.absent.length} />
+
+            {/* La planilla agrupa con sus nombres y el catálogo con los suyos.
+                Ese pareo es dato del vivero, no una constante nuestra. */}
+            {categoryLabels.length > 0 && (
+              <fieldset className="pb-5">
+                <legend className="text-sm font-medium text-ink">
+                  A qué categoría van las plantas nuevas
+                </legend>
+                <p className="mt-1 text-xs text-ink-soft">
+                  Lo que elijas queda guardado para las próximas listas. Si dejás alguna sin
+                  categoría, la planta se carga igual y la ubicás después.
+                </p>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {categoryLabels.map(({ label, count }) => (
+                    <Field key={label} label={label} hint={`${count} ${count === 1 ? 'planta' : 'plantas'}`}>
+                      <Select
+                        value={slugFor(label)}
+                        onChange={(event) =>
+                          setCategoryChoice((prev) => ({ ...prev, [label]: event.target.value }))
+                        }
+                      >
+                        <option value="">— sin categoría —</option>
+                        {categories.map((category) => (
+                          <option key={category.slug} value={category.slug}>
+                            {'  '.repeat(category.depth)}
+                            {category.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
+                  ))}
+                </div>
+              </fieldset>
+            )}
 
             {altas > 0 && (
               <div className="pb-4">

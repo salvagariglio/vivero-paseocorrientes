@@ -16,6 +16,7 @@ import {
   resolveColumns,
   buildPriceDiff,
 } from '@/lib/price-import';
+import { adminCategoryTree, flattenTree } from '@/lib/admin-queries';
 
 /* Todas las escrituras pasan por RLS: aunque llegue otro tenant_id,
  * Postgres rechaza la fila si el usuario no es miembro. */
@@ -207,14 +208,22 @@ export async function previewPriceImport(_prev, formData) {
     };
   }
 
-  const { data: products, error } = await supabase
-    .from('products')
-    .select('id, sku, slug, name, price')
-    .eq('tenant_id', tenant.id);
+  const [{ data: products, error }, tree] = await Promise.all([
+    supabase.from('products').select('id, sku, slug, name, price').eq('tenant_id', tenant.id),
+    adminCategoryTree(supabase, tenant.id),
+  ]);
 
   if (error) return fail(error.message);
 
-  const diff = buildPriceDiff({ rows, products: products ?? [], columns, rounding });
+  const categories = flattenTree(tree);
+  const diff = buildPriceDiff({
+    rows,
+    products: products ?? [],
+    categories,
+    columns,
+    rounding,
+    categoryMap: saved.categories ?? {},
+  });
   if (diff.total === 0) {
     return { ...fail('La planilla no tiene filas debajo del encabezado.'), headers, columns, rounding };
   }
@@ -225,6 +234,8 @@ export async function previewPriceImport(_prev, formData) {
     headers,
     columns,
     rounding,
+    // Para que la persona corrija a que categoria va cada alta.
+    categories: categories.map((c) => ({ slug: c.slug, name: c.name, depth: c.depth })),
     counts: diff.counts,
     total: diff.total,
     items: diff.items,
@@ -242,9 +253,11 @@ export async function applyPriceImport(_prev, formData) {
 
   let items = [];
   let columns = {};
+  let categories = {};
   try {
     items = JSON.parse(text(formData, 'items') || '[]');
     columns = JSON.parse(text(formData, 'columns') || '{}');
+    categories = JSON.parse(text(formData, 'categories') || '{}');
   } catch {
     return fail('Se perdió la previsualización. Volvé a subir la planilla.');
   }
@@ -280,7 +293,7 @@ export async function applyPriceImport(_prev, formData) {
   // El mapeo que funciono queda como default del vivero para la proxima.
   await supabase
     .from('tenant_settings')
-    .upsert({ tenant_id: tenant.id, price_import: { columns, rounding } });
+    .upsert({ tenant_id: tenant.id, price_import: { columns, rounding, categories } });
 
   refresh(tenant.id);
   revalidatePath('/admin/precios');

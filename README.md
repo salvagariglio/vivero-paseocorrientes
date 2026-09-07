@@ -99,6 +99,13 @@ no estan en el catalogo. Recien despues confirma.
 - Que columna es cual **es dato, no constante**: se detecta por el encabezado
   (asi el orden no importa) y lo que el vivero corrige queda en
   `tenant_settings.price_import` para la proxima. Mismo criterio que `theme`.
+- **Producto nuevo**: la fila que no engancha se lista aparte y no se carga
+  sola. Hay un tilde opcional para crearla; entra despublicada y sin foto.
+  A que categoria va se elige en el panel, porque la planilla y el catalogo
+  no las nombran igual (`ARBOLES - VEREDA - CORTINAS` es `Árboles de vereda
+  y cortinas`). Ese pareo tambien vive en `price_import.categories`.
+- **Producto que ya no viene**: se muestra y **no se toca**. Dar de baja lo
+  decide el vivero, no una planilla.
 - Cada importacion queda registrada fila por fila. Leido al reves, eso ya es
   el historial de precios.
 
@@ -156,7 +163,7 @@ otro.
 ## Estado actual
 
 - **Proyecto Supabase**: `Viveros` (`yblkzoutcoimwwwfhzle`, us-east-2). Migraciones
-  0001–0013 aplicadas: tablas, RLS, funciones, bucket `media`, el vivero
+  0001–0014 aplicadas: tablas, RLS, funciones, bucket `media`, el vivero
   Paseo Corrientes con su paleta y sus referencias, y la lista de precios.
 - **Deploy**: https://vivero-paseocorrientes.vercel.app (Vercel, deploy
   automatico en cada push a `main`).

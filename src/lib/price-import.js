@@ -110,6 +110,28 @@ export function resolveColumns(headers = [], saved = {}) {
 }
 
 /**
+ * La categoria de la planilla -> una categoria del catalogo.
+ *
+ * No siempre se llaman igual: la carga inicial reagrupo y renombro
+ * ("ARBOLES - VEREDA - CORTINAS" quedo como "Árboles de vereda y
+ * cortinas"). Ese mapa vivia hardcodeado en el script de importacion;
+ * ahora es dato del vivero, en tenant_settings.price_import.categories.
+ */
+export function resolveCategorySlug(label, categories = [], saved = {}) {
+  if (!label) return null;
+
+  const key = norm(label);
+  const chosen = saved[label] ?? Object.entries(saved).find(([k]) => norm(k) === key)?.[1];
+  if (chosen && categories.some((c) => c.slug === chosen)) return chosen;
+
+  // Sin mapa: el slug directo, y si no el nombre de la categoria.
+  const slug = slugify(label);
+  if (categories.some((c) => c.slug === slug)) return slug;
+
+  return categories.find((c) => norm(c.name) === key)?.slug ?? null;
+}
+
+/**
  * "$ 10.847,39" -> 10847.39
  * Con dos separadores manda el ultimo. Con uno solo, tres digitos a la
  * derecha son miles: 1.500 son mil quinientos pesos, no uno con medio.
@@ -175,7 +197,6 @@ export function normalizeRow(row, line, headers, columns, rounding) {
 
   const priceIndex = at('price');
   const price = roundPrice(parsePrice(priceIndex < 0 ? null : row[priceIndex]), rounding);
-  const category = cell(row, at('category'));
 
   return {
     line,
@@ -183,7 +204,7 @@ export function normalizeRow(row, line, headers, columns, rounding) {
     name: name || null,
     scientific: scientific && slugify(scientific) !== slugify(name) ? scientific : null,
     size: size || null,
-    categorySlug: category ? slugify(category) : null,
+    categoryLabel: cell(row, at('category')) || null,
     price: price !== null && price > 0 ? price : null,
     slugs: name ? [size ? slugify(`${name} ${size}`) : null, slugify(name)].filter(Boolean) : [],
   };
@@ -199,8 +220,10 @@ const isBlank = (row) =>
 export function buildPriceDiff({
   rows = [],
   products = [],
+  categories = [],
   columns = {},
   rounding = DEFAULT_ROUNDING,
+  categoryMap = {},
 }) {
   const headers = (rows[0] ?? []).map((value) => String(value ?? ''));
 
@@ -282,7 +305,8 @@ export function buildPriceDiff({
       size: parsed.size,
       // La referencia de envase guarda la opcion por clave, no por etiqueta.
       envase: parsed.size ? slugify(parsed.size) : null,
-      categorySlug: parsed.categorySlug,
+      categoryLabel: parsed.categoryLabel,
+      categorySlug: resolveCategorySlug(parsed.categoryLabel, categories, categoryMap),
       price: parsed.price,
       oldPrice,
       outcome,
