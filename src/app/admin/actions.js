@@ -9,6 +9,13 @@ import { ROOT_DOMAIN } from '@/lib/config';
 import { resolveTheme, THEME_TOKENS, TYPESET_KEYS, DEFAULT_TYPESET } from '@/lib/theme';
 import { CONTENT_KEYS } from '@/lib/content';
 import { instagramHandle } from '@/lib/contact';
+import {
+  IMPORT_FIELDS,
+  ROUNDINGS,
+  DEFAULT_ROUNDING,
+  resolveColumns,
+  buildPriceDiff,
+} from '@/lib/price-import';
 
 /* Todas las escrituras pasan por RLS: aunque llegue otro tenant_id,
  * Postgres rechaza la fila si el usuario no es miembro. */
@@ -140,6 +147,152 @@ export async function toggleProductActive(formData) {
     .eq('tenant_id', tenant.id);
 
   refresh(tenant.id);
+}
+
+/* ------------------------------------------------------------------ */
+/* Lista de precios                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Lee la planilla y la compara con el catalogo. No escribe nada:
+ * devuelve el detalle para que la persona lo mire antes de aplicar.
+ */
+export async function previewPriceImport(_prev, formData) {
+  const { tenant, supabase } = await requireAdminContext();
+
+  const file = formData.get('file');
+  if (!file || typeof file.arrayBuffer !== 'function' || file.size === 0) {
+    return fail('Elegí la planilla que querés subir.');
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    return fail('La planilla pesa más de 8 MB. Guardala como .xlsx desde Excel.');
+  }
+
+  // Solo aca: el lector usa node:zlib y no tiene por que cargarse
+  // en el resto de las acciones del panel.
+  const { readSheet } = await import('@/lib/xlsx');
+
+  let rows;
+  try {
+    rows = readSheet(Buffer.from(await file.arrayBuffer()));
+  } catch (error) {
+    return fail(error.message || 'No pudimos leer la planilla.');
+  }
+
+  const headers = (rows[0] ?? []).map((value) => String(value ?? '').trim());
+  if (headers.every((header) => !header)) {
+    return fail('La primera fila de la planilla tiene que ser el encabezado de las columnas.');
+  }
+
+  // Lo que el vivero eligio la vez pasada; si esa columna ya no esta, se
+  // vuelve a adivinar por alias.
+  const saved = tenant.settings?.price_import ?? {};
+  const chosen = Object.fromEntries(
+    IMPORT_FIELDS.map(({ key }) => [key, text(formData, `column.${key}`)]).filter(([, v]) => v)
+  );
+  const columns = resolveColumns(headers, { ...(saved.columns ?? {}), ...chosen });
+
+  const rounding = ROUNDINGS.some((r) => r.value === text(formData, 'rounding'))
+    ? text(formData, 'rounding')
+    : saved.rounding ?? DEFAULT_ROUNDING;
+
+  if (!columns.price) {
+    return {
+      ok: false,
+      message: 'No encontramos la columna de precios. Elegila abajo y volvé a previsualizar.',
+      headers,
+      columns,
+      rounding,
+      filename: file.name,
+    };
+  }
+
+  const { data: products, error } = await supabase
+    .from('products')
+    .select('id, sku, slug, name, price')
+    .eq('tenant_id', tenant.id);
+
+  if (error) return fail(error.message);
+
+  const diff = buildPriceDiff({ rows, products: products ?? [], columns, rounding });
+  if (diff.total === 0) {
+    return { ...fail('La planilla no tiene filas debajo del encabezado.'), headers, columns, rounding };
+  }
+
+  return {
+    ok: true,
+    filename: file.name,
+    headers,
+    columns,
+    rounding,
+    counts: diff.counts,
+    total: diff.total,
+    items: diff.items,
+    absent: diff.absent.map((p) => ({ id: p.id, name: p.name, sku: p.sku, price: p.price })),
+    duplicates: diff.duplicates.map((group) => ({
+      name: group[0].name,
+      lines: group.map((item) => item.line),
+    })),
+  };
+}
+
+/** Escribe: un solo RPC, una sola transaccion, y solo la columna price. */
+export async function applyPriceImport(_prev, formData) {
+  const { tenant, supabase } = await requireAdminContext();
+
+  let items = [];
+  let columns = {};
+  try {
+    items = JSON.parse(text(formData, 'items') || '[]');
+    columns = JSON.parse(text(formData, 'columns') || '{}');
+  } catch {
+    return fail('Se perdió la previsualización. Volvé a subir la planilla.');
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    return fail('No hay nada para aplicar. Volvé a subir la planilla.');
+  }
+
+  const rounding = ROUNDINGS.some((r) => r.value === text(formData, 'rounding'))
+    ? text(formData, 'rounding')
+    : DEFAULT_ROUNDING;
+
+  const { data, error } = await supabase.rpc('apply_price_import', {
+    p_tenant: tenant.id,
+    p_filename: text(formData, 'filename'),
+    p_mapping: { columns, rounding },
+    p_rows: items.map((item) => ({
+      product_id: item.productId,
+      sku: item.sku,
+      slug: item.slug,
+      name: item.name,
+      scientific: item.scientific,
+      envase: item.envase,
+      category_slug: item.categorySlug,
+      price: item.price,
+      outcome: item.outcome,
+    })),
+    p_create_new: bool(formData, 'create_new'),
+    p_absent: num(formData, 'absent') ?? 0,
+  });
+
+  if (error) return fail(error.message);
+
+  // El mapeo que funciono queda como default del vivero para la proxima.
+  await supabase
+    .from('tenant_settings')
+    .upsert({ tenant_id: tenant.id, price_import: { columns, rounding } });
+
+  refresh(tenant.id);
+  revalidatePath('/admin/precios');
+
+  const created = Number(data?.created) || 0;
+  return {
+    ok: true,
+    applied: true,
+    message: created
+      ? `Listo: ${data.changed} precios actualizados y ${created} plantas nuevas cargadas sin publicar.`
+      : `Listo: ${data.changed} precios actualizados.`,
+  };
 }
 
 /* ------------------------------------------------------------------ */

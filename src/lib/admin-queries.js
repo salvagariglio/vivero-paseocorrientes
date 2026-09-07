@@ -119,6 +119,18 @@ export async function adminQuote(supabase, tenantId, id) {
   return { ...data, items: items ?? [] };
 }
 
+/** Historial de importaciones de la lista de precios. */
+export async function adminPriceImports(supabase, tenantId, limit = 12) {
+  const { data } = await supabase
+    .from('price_imports')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  return data ?? [];
+}
+
 /** Catalogo minimo para el buscador del presupuestador. */
 export async function adminPriceList(supabase, tenantId) {
   const { data } = await supabase

@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Leaf, FolderTree, Tags, Palette, Users, Ruler, ExternalLink, LogOut, Calculator } from 'lucide-react';
+import { Leaf, FolderTree, Tags, Palette, Users, Ruler, ExternalLink, LogOut, Calculator, FileSpreadsheet } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 const ITEMS = [
   { href: '/admin/productos', label: 'Plantas', icon: Leaf },
   { href: '/admin/categorias', label: 'Categorías', icon: FolderTree },
+  { href: '/admin/precios', label: 'Lista de precios', icon: FileSpreadsheet },
   { href: '/admin/presupuestos', label: 'Presupuestos', icon: Calculator },
   { href: '/admin/referencias', label: 'Referencias', icon: Ruler },
   { href: '/admin/etiquetas', label: 'Etiquetas y QR', icon: Tags },

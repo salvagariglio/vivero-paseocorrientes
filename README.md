@@ -82,6 +82,30 @@ resuelven solos) o setear `NEXT_PUBLIC_DEV_TENANT_SLUG`.
   `label_templates` (ancho, alto, QR, separación, margen, A4/Carta y qué campos
   mostrar), o sea que cada vivero imprime en el papel que usa.
 
+## Lista de precios
+
+El vivero actualiza sus precios sin nosotros: entra a `/admin/precios`, sube
+la misma planilla que ya usa y **antes de tocar nada** ve cuantos precios
+suben, cuantos bajan, cuantos quedan igual, cuales no traen precio y cuales
+no estan en el catalogo. Recien despues confirma.
+
+- **Engancha por `products.sku`** (la columna Codigo) y, si la fila no trae
+  codigo, por el slug que sale del nombre + envase. Los slugs existentes no
+  se regeneran nunca.
+- **Toca una sola columna: `price`.** Fotos, promociones, `allow_discount`,
+  atributos y descripciones son trabajo del vivero y no se pisan.
+- Se aplica con **un solo `apply_price_import`**, en una transaccion, con la
+  sesion de la persona: RLS vuelve a exigir membresia del tenant.
+- Que columna es cual **es dato, no constante**: se detecta por el encabezado
+  (asi el orden no importa) y lo que el vivero corrige queda en
+  `tenant_settings.price_import` para la proxima. Mismo criterio que `theme`.
+- Cada importacion queda registrada fila por fila. Leido al reves, eso ya es
+  el historial de precios.
+
+El lector de `.xlsx` es propio (`src/lib/xlsx.js`, unos 180 renglones sobre
+`node:zlib`): el repo es publico y no queriamos heredar los advisories de las
+librerias de planillas para leer seis columnas.
+
 ## Modelo de datos
 
 | Tabla | Para qué |
@@ -95,6 +119,8 @@ resuelven solos) o setear `NEXT_PUBLIC_DEV_TENANT_SLUG`.
 | `products` | plantas, con promo por ventana de fechas y `attributes` jsonb |
 | `product_images` | galería |
 | `label_templates` | medidas y contenido de las etiquetas |
+| `price_imports` | cada actualizacion de la lista: cuando, quien, cuanto cambio |
+| `price_import_items` | fila por fila, que precio habia y cual quedo |
 
 `products.attributes` es jsonb libre: cada vivero define sus datos de cuidado
 (luz, riego, maceta, dificultad…) sin migrar nada. La ficha los renderiza sola.
@@ -115,6 +141,8 @@ src/
     auth.js            sesión, rol, guardas
     queries.js         lecturas públicas cacheadas por tenant
     admin-queries.js   lecturas del panel
+    xlsx.js            lector de .xlsx, sin dependencias
+    price-import.js    mapeo de columnas y diff de la lista de precios
 supabase/migrations/   schema + RLS
 ```
 
@@ -133,17 +161,20 @@ otro.
 - **Deploy**: https://vivero-paseocorrientes.vercel.app (Vercel, deploy
   automatico en cada push a `main`).
 - **Catalogo cargado**: 448 productos importados del listado de precios, en
-  6 familias y 22 subcategorias. Los precios se redondearon al peso porque
-  la planilla trae centavos de una formula de markup.
+  6 familias y 22 subcategorias. La planilla trae centavos de una formula de
+  markup; el vivero elige donde cortarlos y hoy estan al peso.
+- **Pendiente de aplicar**: `0013_lista_de_precios.sql`. Sin esa migracion,
+  `/admin/precios` no funciona.
 - **Vercel Authentication esta activa**: el sitio solo lo ve quien tenga
   acceso al equipo de Vercel. Al conectar el dominio propio queda publico;
   hasta entonces los QR no le sirven a un cliente en el local.
 
-### Importar un listado de precios
+### Carga inicial del catalogo
 
 ```bash
 node scripts/import-listado.mjs "Listado precios Publico.xlsx" import.sql
 ```
 
 Genera el SQL (categorias + referencia de envase + productos, todo
-idempotente por `slug`) para pegar en el SQL Editor de Supabase.
+idempotente por `slug`) para pegar en el SQL Editor. Es de una sola vez:
+arma el arbol de categorias. Los precios despues se actualizan solos.
